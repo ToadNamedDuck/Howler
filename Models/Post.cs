@@ -17,5 +17,8 @@ namespace Howler.Models
         [Required]
         public int BoardId { get; set; }
         public DateTime CreatedOn { get; set; }
+
+        //Add the user object to the Post
+        public User User { get; set; }
     }
 }

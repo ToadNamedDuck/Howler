@@ -21,5 +21,8 @@ namespace Howler.Models
         public string FirebaseId { get; set; }
         public int? PackId { get; set; }
         public bool IsBanned { get; set; }
+
+        //Probably should add a pack object to the user, so you can get the name of the pack off of user.Pack.Name or something similar.
+        public Pack Pack { get; set; }
     }
 }
