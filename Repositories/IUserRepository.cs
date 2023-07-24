@@ -1,4 +1,5 @@
 ﻿using Howler.Models;
+using System.Collections.Generic;
 
 namespace Howler.Repositories
 {
@@ -10,5 +11,6 @@ namespace Howler.Repositories
         public void Update(User user);
         public User GetByFirebaseId(string firebaseId);
         public UserWithPosts GetByIdWithPosts(int id);
+        public List<User> GetByPackId(int packId);
     }
 }

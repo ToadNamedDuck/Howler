@@ -4,6 +4,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Streamish.Repositories;
 using System;
+using System.Collections.Generic;
 
 namespace Howler.Repositories
 {
@@ -21,7 +22,7 @@ namespace Howler.Repositories
         //AddUser /\
         //EditUser /\
         //GetByFirebaseId /\
-        //GetByIdWithPosts
+        //GetByIdWithPosts /\
         //GetByPackId - return List<User>
         //GetByIdWithComments ** stretch, add panel to profile
         //GetByIdWithPostsAndComments ** stretch, add panel to profile
@@ -178,8 +179,6 @@ namespace Howler.Repositories
 
                     using(SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        if (reader.Read())
-                        {
                             while (reader.Read())
                             {
                                 if(user == null)
@@ -222,12 +221,37 @@ namespace Howler.Repositories
                                 };
                                 user.Posts.Add(post);
                             }
-                        }
                     }
                 }
             }
 
             return user;
+        }
+
+        public List<User> GetByPackId (int packId)
+        {
+            List<User> users = new List<User>();
+
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Select Id, DisplayName, Email, ProfilePictureUrl, DateCreated, FirebaseId, IsBanned, PackId from [User] where PackId = @id";
+                    cmd.Parameters.AddWithValue("@id", packId);
+
+                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            User user = UserBuilder(reader);
+                            users.Add(user);
+                        }
+                    }
+                }
+            }
+            return users;
         }
 
         private User UserBuilder(SqlDataReader reader)
