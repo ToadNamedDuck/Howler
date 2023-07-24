@@ -6,5 +6,8 @@ namespace Howler.Repositories
     {
         public User GetById(int id);
         public User GetByEmail(string email);
+        public void Add(User user);
+        public void Update(User user);
+        public User GetByFirebaseId(string firebaseId);
     }
 }

@@ -131,6 +131,33 @@ namespace Howler.Repositories
             }
         }
 
+        public User GetByFirebaseId(string firebaseId)
+        {
+            User user = null;
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Select Id, DisplayName, Email, ProfilePictureUrl, DateCreated, FirebaseId, IsBanned, PackId
+                                        from [User]
+                                        where FirebaseId = @fbid";
+
+                    cmd.Parameters.AddWithValue("@fbid", firebaseId);
+
+                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            user = UserBuilder(reader);
+                        }
+                    }
+                }
+            }
+            return user;
+        }
+
         private User UserBuilder(SqlDataReader reader)
         {
             User user = new()
