@@ -17,9 +17,9 @@ namespace Howler.Repositories
         //I don't think there's a use case for get all users/GetAll.
         //No deletion of users
         //GetById /\
-        //GetByEmail /\
-        //AddUser
-        //EditUser
+        //GetByEmail /\ - might be totally unnecessary. rip
+        //AddUser /\
+        //EditUser /\
         //GetByFirebaseId
         //GetByIdWithPosts
         //GetByPackId - return List<User>
@@ -105,6 +105,28 @@ namespace Howler.Repositories
                     }
 
                     user.Id = (int)cmd.ExecuteScalar();
+                }
+            }
+        }
+
+        public void Update(User user)
+        {
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using (var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Update [User]
+                                        SET DisplayName = @displayName
+                                        ProfilePictureUrl = @pfp
+                                        Where Id = @id";
+
+                    cmd.Parameters.AddWithValue("@displayName", user.DisplayName);
+                    cmd.Parameters.AddWithValue("@pfp", user.ProfilePictureUrl);
+                    cmd.Parameters.AddWithValue("id", user.Id);
+
+                    cmd.ExecuteNonQuery();
                 }
             }
         }
