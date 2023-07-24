@@ -1,4 +1,5 @@
 ﻿using Howler.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Streamish.Repositories;
@@ -15,7 +16,7 @@ namespace Howler.Repositories
 
         //I don't think there's a use case for get all users/GetAll.
         //No deletion of users
-        //GetById
+        //GetById /\
         //GetByEmail
         //AddUser
         //EditUser
@@ -47,6 +48,31 @@ namespace Howler.Repositories
             }
             return user;
         }
+
+        public User GetByEmail(string email)
+        {
+            User user = null;
+            using (var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Select Id, DisplayName, Email, DateCreated, FirebaseId, IsBanned, PackId from [User] where Email = @email";
+                    cmd.Parameters.AddWithValue("@email", email);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if(reader.Read())
+                        {
+                            user = UserBuilder(reader);
+                        }
+                    }
+                }
+            }
+            return user;
+        }
+
         private User UserBuilder(SqlDataReader reader)
         {
             User user = new()
