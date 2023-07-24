@@ -1,5 +1,6 @@
 ﻿using Howler.Models;
 using Howler.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -73,12 +74,40 @@ namespace Howler.Controllers
             return Ok(users);
         }
 
+        [HttpPost]
+        public IActionResult Post(User user)
+        {
+            user.DateCreated = DateTime.Now;
+            _userRepository.Add(user);
+            return CreatedAtAction(
+                nameof(GetByFirebaseId),
+                new { firebaseId = user.FirebaseId },
+                user);
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult UpdateUser(int id, User user)
+        {
+            User currentUser = GetCurrentUser();
+            if(id != user.Id)
+            {
+                return BadRequest();
+            }
+            if(id != currentUser.Id)
+            {
+                return Unauthorized();
+            }
+            _userRepository.Update(user);
+            return NoContent();
+
+        }
+
 
         //This will grab the user's FirebaseId from the global user object, which is contained in the JWT of the request. lol. Can use to verify a user is editing their own profile.
-        //private User GetCurrentUserProfile()
-        //{
-        //    var firebaseUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-        //    return _userRepository.GetByFirebaseUserId(firebaseUserId);
-        //}
+        private User GetCurrentUser()
+        {
+            var firebaseUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            return _userRepository.GetByFirebaseId(firebaseUserId);
+        }
     }
 }

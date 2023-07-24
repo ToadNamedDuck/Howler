@@ -119,12 +119,19 @@ namespace Howler.Repositories
                 using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Update [User]
-                                        SET DisplayName = @displayName
+                                        SET DisplayName = @displayName,
                                         ProfilePictureUrl = @pfp
                                         Where Id = @id";
 
                     cmd.Parameters.AddWithValue("@displayName", user.DisplayName);
-                    cmd.Parameters.AddWithValue("@pfp", user.ProfilePictureUrl);
+                    if (!String.IsNullOrWhiteSpace(user.ProfilePictureUrl))
+                    {
+                        cmd.Parameters.AddWithValue("@pfp", user.ProfilePictureUrl);
+                    }
+                    else
+                    {
+                        cmd.Parameters.AddWithValue("@pfp", DBNull.Value);
+                    }
                     cmd.Parameters.AddWithValue("id", user.Id);
 
                     cmd.ExecuteNonQuery();
