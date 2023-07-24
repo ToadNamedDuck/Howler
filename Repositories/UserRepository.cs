@@ -17,7 +17,7 @@ namespace Howler.Repositories
         //I don't think there's a use case for get all users/GetAll.
         //No deletion of users
         //GetById /\
-        //GetByEmail
+        //GetByEmail /\
         //AddUser
         //EditUser
         //GetByFirebaseId
@@ -25,6 +25,7 @@ namespace Howler.Repositories
         //GetByPackId - return List<User>
         //GetByIdWithComments ** stretch, add panel to profile
         //GetByIdWithPostsAndComments ** stretch, add panel to profile
+        //Update these to include their profile picture url pls :)
         public User GetById(int id)
         {
             User user = null;
@@ -71,6 +72,26 @@ namespace Howler.Repositories
                 }
             }
             return user;
+        }
+
+        public void Add(User user)
+        {
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Insert into [User] (DisplayName, Email, DateCreated, FirebaseId, IsBanned, PackId) OUTPUT INSERTED.ID values (@dpn, @email, @dc, @fbid, 0, @packId)";
+                    cmd.Parameters.AddWithValue("@dpn", user.DisplayName);
+                    cmd.Parameters.AddWithValue("@email", user.Email);
+                    cmd.Parameters.AddWithValue("@dc", DateTime.Now);
+                    cmd.Parameters.AddWithValue("@fbid", user.FirebaseId);
+                    cmd.Parameters.AddWithValue("@packId", DBNull.Value);
+
+                    user.Id = (int)cmd.ExecuteScalar();
+                }
+            }
         }
 
         private User UserBuilder(SqlDataReader reader)
