@@ -35,7 +35,9 @@ namespace Howler.Repositories
 
                 using (var cmd = connection.CreateCommand())
                 {
-                    cmd.CommandText = @"Select Id, DisplayName, Email, DateCreated, FirebaseId, IsBanned, PackId from [User] where Id = @id";
+                    cmd.CommandText = @"Select Id, DisplayName, Email, ProfilePictureUrl, DateCreated, FirebaseId, IsBanned, PackId
+                                        from [User]
+                                        where Id = @id";
                     cmd.Parameters.AddWithValue("@id", id);
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
@@ -59,7 +61,9 @@ namespace Howler.Repositories
 
                 using(var cmd = connection.CreateCommand())
                 {
-                    cmd.CommandText = @"Select Id, DisplayName, Email, DateCreated, FirebaseId, IsBanned, PackId from [User] where Email = @email";
+                    cmd.CommandText = @"Select Id, DisplayName, Email, ProfilePictureUrl, DateCreated, FirebaseId, IsBanned, PackId
+                                        from [User]
+                                        where Email = @email";
                     cmd.Parameters.AddWithValue("@email", email);
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
@@ -82,12 +86,23 @@ namespace Howler.Repositories
 
                 using(var cmd = connection.CreateCommand())
                 {
-                    cmd.CommandText = @"Insert into [User] (DisplayName, Email, DateCreated, FirebaseId, IsBanned, PackId) OUTPUT INSERTED.ID values (@dpn, @email, @dc, @fbid, 0, @packId)";
+                    cmd.CommandText = @"Insert into [User] (DisplayName, Email, ProfilePictureUrl, DateCreated, FirebaseId, IsBanned, PackId)
+                                        OUTPUT INSERTED.ID
+                                        values (@dpn, @email, @pfp, @dc, @fbid, 0, @packId)";
+
                     cmd.Parameters.AddWithValue("@dpn", user.DisplayName);
                     cmd.Parameters.AddWithValue("@email", user.Email);
                     cmd.Parameters.AddWithValue("@dc", DateTime.Now);
                     cmd.Parameters.AddWithValue("@fbid", user.FirebaseId);
                     cmd.Parameters.AddWithValue("@packId", DBNull.Value);
+                    if(user.ProfilePictureUrl == null)
+                    {
+                        cmd.Parameters.AddWithValue("@pfp", DBNull.Value);
+                    }
+                    else
+                    {
+                        cmd.Parameters.AddWithValue("@pfp", user.ProfilePictureUrl);
+                    }
 
                     user.Id = (int)cmd.ExecuteScalar();
                 }
@@ -113,6 +128,15 @@ namespace Howler.Repositories
             {
                 user.PackId = null;
             }
+
+            if (!reader.IsDBNull(reader.GetOrdinal("ProfilePictureUrl"))){
+                user.ProfilePictureUrl = reader.GetString(reader.GetOrdinal("ProfilePictureUrl"));
+            }
+            else
+            {
+                user.ProfilePictureUrl = null;
+            }
+
             return user;
         }
     }
