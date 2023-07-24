@@ -20,7 +20,7 @@ namespace Howler.Repositories
         //GetByEmail /\ - might be totally unnecessary. rip
         //AddUser /\
         //EditUser /\
-        //GetByFirebaseId
+        //GetByFirebaseId /\
         //GetByIdWithPosts
         //GetByPackId - return List<User>
         //GetByIdWithComments ** stretch, add panel to profile
@@ -155,6 +155,78 @@ namespace Howler.Repositories
                     }
                 }
             }
+            return user;
+        }
+
+        public UserWithPosts GetByIdWithPosts (int id)
+        {
+            UserWithPosts user = null;
+
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Select u.Id as UserId, u.DisplayName, u.Email, u.ProfilePictureUrl, u.DateCreated as UserDate, u.FirebaseId, u.IsBanned, u.PackId,
+                                        p.Id as PostId, p.Title, p.Content, p.CreatedOn, p.UserId, p.BoardId
+                                        from [User] u
+                                        left join Post p on p.UserId = u.Id
+                                        where u.Id = @userId";
+
+                    cmd.Parameters.AddWithValue("@userId", id);
+
+                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            while (reader.Read())
+                            {
+                                if(user == null)
+                                {
+                                    user = new UserWithPosts()
+                                    {
+                                        Id = reader.GetInt32(reader.GetOrdinal("UserId")),
+                                        DisplayName = reader.GetString(reader.GetOrdinal("DisplayName")),
+                                        Email = reader.GetString(reader.GetOrdinal("Email")),
+                                        DateCreated = reader.GetDateTime(reader.GetOrdinal("UserDate")),
+                                        FirebaseId = reader.GetString(reader.GetOrdinal("FirebaseId")),
+                                        IsBanned = reader.GetBoolean(reader.GetOrdinal("IsBanned"))
+                                    };
+                                    if (!reader.IsDBNull(reader.GetOrdinal("PackId")))
+                                    {
+                                        user.PackId = reader.GetInt32(reader.GetOrdinal("PackId"));
+                                    }
+                                    else
+                                    {
+                                        user.PackId = null;
+                                    }
+
+                                    if (!reader.IsDBNull(reader.GetOrdinal("ProfilePictureUrl")))
+                                    {
+                                        user.ProfilePictureUrl = reader.GetString(reader.GetOrdinal("ProfilePictureUrl"));
+                                    }
+                                    else
+                                    {
+                                        user.ProfilePictureUrl = null;
+                                    }
+                                };
+                                Post post = new()
+                                {
+                                    Id = reader.GetInt32(reader.GetOrdinal("PostId")),
+                                    Title = reader.GetString(reader.GetOrdinal("Title")),
+                                    Content = reader.GetString(reader.GetOrdinal("Content")),
+                                    CreatedOn = reader.GetDateTime(reader.GetOrdinal("CreatedOn")),
+                                    UserId = reader.GetInt32(reader.GetOrdinal("UserId")),
+                                    BoardId = reader.GetInt32(reader.GetOrdinal("BoardId"))
+                                };
+                                user.Posts.Add(post);
+                            }
+                        }
+                    }
+                }
+            }
+
             return user;
         }
 
