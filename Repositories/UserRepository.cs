@@ -26,7 +26,6 @@ namespace Howler.Repositories
         //GetByPackId - return List<User>
         //GetByIdWithComments ** stretch, add panel to profile
         //GetByIdWithPostsAndComments ** stretch, add panel to profile
-        //Update these to include their profile picture url pls :)
         public User GetById(int id)
         {
             User user = null;

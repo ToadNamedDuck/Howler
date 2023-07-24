@@ -33,7 +33,7 @@ namespace Howler
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Streamish", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Howler", Version = "v1" });
                 var securitySchema = new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -83,7 +83,7 @@ namespace Howler
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Streamish v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Howler v1"));
 
                 app.UseRouting();
                 app.UseAuthentication();
