@@ -74,6 +74,7 @@ namespace Howler
 
                 //Add our repositories here
                 services.AddTransient<IUserRepository, UserRepository>();
+                services.AddTransient<IPackRepository, PackRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

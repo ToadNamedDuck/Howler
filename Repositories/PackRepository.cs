@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Howler.Repositories
 {
-    public class PackRepository : BaseRepository
+    public class PackRepository : BaseRepository, IPackRepository
     {
         public PackRepository(IConfiguration configuration) : base(configuration)
         {
@@ -26,11 +26,11 @@ namespace Howler.Repositories
         {
             List<Pack> packs = new();
 
-            using(var connection = Connection)
+            using (var connection = Connection)
             {
                 connection.Open();
 
-                using(var cmd = connection.CreateCommand())
+                using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Select p.Id as PackId, p.Name, p.Description, p.PackLeaderId, p.PrimaryBoardId,
                                         u.Id as UserId, u.DisplayName, u.ProfilePictureUrl, u.DateCreated, u.PackId, u.IsBanned
@@ -38,7 +38,7 @@ namespace Howler.Repositories
                                         join [User] u
                                         on u.Id = p.PackLeaderId";
 
-                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         //to-do: put data from reader where it belongs. Also: I am thinking about removing the email field from the user object, because I cant forsee where
                         //it will be useful, and really it's probably a security flaw to be putting it around everywhere, especially if it's only used for login, and it won't
@@ -64,11 +64,11 @@ namespace Howler.Repositories
         {
             Pack pack = null;
 
-            using(var connection = Connection)
+            using (var connection = Connection)
             {
                 connection.Open();
 
-                using(var cmd = connection.CreateCommand())
+                using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Select p.Id as PackId, p.Name, p.Description, p.PackLeaderId, p.PrimaryBoardId,
                                         u.Id as UserId, u.DisplayName, u.ProfilePictureUrl, u.DateCreated, u.PackId, u.IsBanned
@@ -79,7 +79,7 @@ namespace Howler.Repositories
 
                     cmd.Parameters.AddWithValue("@id", id);
 
-                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         if (reader.Read())
                         {
@@ -93,7 +93,7 @@ namespace Howler.Repositories
 
         public void Add(Pack pack)
         {
-            using(var connection = Connection)
+            using (var connection = Connection)
             {
                 connection.Open();
 
@@ -102,7 +102,7 @@ namespace Howler.Repositories
                     cmd.CommandText = @"Insert into Pack ([Name], Description, PackLeaderId, PrimaryBoardId)
                                         OUTPUT INSERTED.ID
                                         values (@name, @desc, @plid, @pbid)";
-                    
+
                     cmd.Parameters.AddWithValue("@name", pack.Name);
                     cmd.Parameters.AddWithValue("@desc", pack.Description);
                     cmd.Parameters.AddWithValue("@plid", pack.PackLeaderId);
@@ -115,11 +115,11 @@ namespace Howler.Repositories
 
         public void Edit(Pack pack)
         {
-            using(var connection = Connection)
+            using (var connection = Connection)
             {
                 connection.Open();
 
-                using(var cmd = connection.CreateCommand())
+                using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Update Pack
                                         SET [Name] = @name,
@@ -141,11 +141,11 @@ namespace Howler.Repositories
 
         public void Delete(int packId)
         {
-            using(var connection = Connection)
+            using (var connection = Connection)
             {
                 connection.Open();
 
-                using(var cmd = connection.CreateCommand())
+                using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Update [User]
                                         Set PackId = @nullValue

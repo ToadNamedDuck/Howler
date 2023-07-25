@@ -15,6 +15,6 @@ namespace Howler.Models
         public int PackLeaderId { get; set; }
         public int? PrimaryBoardId { get; set; }
         public BarrenUser PackLeader { get; set; }
-        public Board PackBoard { get; set; }
+        //public Board PackBoard { get; set; }
     }
 }
