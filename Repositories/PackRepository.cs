@@ -15,8 +15,8 @@ namespace Howler.Repositories
 
         //Get All Packs /\
         //GetById /\
-        //Add pack
-        //Edit pack
+        //Add pack /\
+        //Edit pack /\
         //Delete Pack
         //Maybe get by owner Id
         //PackLeader should have a User obj without pack info on it. We can make a User model without a pack on it later. BarrenUser
@@ -84,6 +84,54 @@ namespace Howler.Repositories
                 }
             }
             return pack;
+        }
+
+        public void Add(Pack pack)
+        {
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using (var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Insert into Pack ([Name], Description, PackLeaderId, PrimaryBoardId)
+                                        OUTPUT INSERTED.ID
+                                        values (@name, @desc, @plid, @pbid)";
+                    
+                    cmd.Parameters.AddWithValue("@name", pack.Name);
+                    cmd.Parameters.AddWithValue("@desc", pack.Description);
+                    cmd.Parameters.AddWithValue("@plid", pack.PackLeaderId);
+                    cmd.Parameters.AddWithValue("@pbid", pack.PrimaryBoardId);
+
+                    pack.Id = (int)cmd.ExecuteScalar();
+                }
+            }
+        }
+
+        public void Edit(Pack pack)
+        {
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Update Pack
+                                        SET [Name] = @name,
+                                        Description = @desc,
+                                        PackLeaderId = @plid,
+                                        PrimaryBoardId = @pbid
+                                        Where Id = @id";
+
+                    cmd.Parameters.AddWithValue("@name", pack.Name);
+                    cmd.Parameters.AddWithValue("@desc", pack.Description);
+                    cmd.Parameters.AddWithValue("@plid", pack.PackLeaderId);
+                    cmd.Parameters.AddWithValue("@pbid", pack.PrimaryBoardId);
+                    cmd.Parameters.AddWithValue("@id", pack.Id);
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
         }
 
         private Pack PackBuilder(SqlDataReader reader)
