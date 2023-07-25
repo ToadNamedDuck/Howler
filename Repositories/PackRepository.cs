@@ -42,11 +42,39 @@ namespace Howler.Repositories
                         //to-do: put data from reader where it belongs. Also: I am thinking about removing the email field from the user object, because I cant forsee where
                         //it will be useful, and really it's probably a security flaw to be putting it around everywhere, especially if it's only used for login, and it won't
                         //be displayed on the website at all.
+
+                        while (reader.Read())
+                        {
+
+                        }
+
                     }
                 }
             }
 
             return packs;
         }
+
+        private Pack PackBuilder(SqlDataReader reader)
+        {
+            Pack pack = new()
+            {
+                Id = reader.GetInt32(reader.GetOrdinal("PackId")),
+                Name = reader.GetString(reader.GetOrdinal("Name")),
+                Description = reader.GetString(reader.GetOrdinal("Description")),
+                PackLeaderId = reader.GetInt32(reader.GetOrdinal("PackLeaderId")),
+            };
+            if (reader.IsDBNull(reader.GetOrdinal("PrimaryBoardId")))
+            {
+                pack.PrimaryBoardId = null;
+            }
+            else
+            {
+                pack.PrimaryBoardId = reader.GetInt32(reader.GetOrdinal("PrimaryBoardId"));
+            }
+
+            return pack;
+        }
+
     }
 }
