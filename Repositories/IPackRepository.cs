@@ -10,5 +10,6 @@ namespace Howler.Repositories
         void Edit(Pack pack);
         List<Pack> GetAllPacks();
         Pack GetById(int id);
+        Pack ExactSearch(string q);
     }
 }

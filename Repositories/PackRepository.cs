@@ -19,8 +19,8 @@ namespace Howler.Repositories
         //Add pack /\
         //Edit pack /\
         //Delete Pack /\
-        //Maybe get by owner Id -- probbaly not. canned
-        //PackLeader should have a User obj without pack info on it. We can make a User model without a pack on it later. BarrenUser
+        //Search pack / - Exact matches work. Add regular searches.
+        //PackLeader should have a User obj without pack info on it. We can make a User model without a pack on it later. -- BarrenUser
 
         public List<Pack> GetAllPacks()
         {
@@ -33,7 +33,7 @@ namespace Howler.Repositories
                 using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Select p.Id as PackId, p.Name, p.Description, p.PackLeaderId, p.PrimaryBoardId,
-                                        u.Id as UserId, u.DisplayName, u.ProfilePictureUrl, u.DateCreated, u.PackId, u.IsBanned
+                                        u.Id as UserId, u.DisplayName, u.ProfilePictureUrl, u.DateCreated, u.PackId as userPackId, u.IsBanned
                                         from Pack p
                                         join [User] u
                                         on u.Id = p.PackLeaderId";
@@ -71,7 +71,7 @@ namespace Howler.Repositories
                 using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Select p.Id as PackId, p.Name, p.Description, p.PackLeaderId, p.PrimaryBoardId,
-                                        u.Id as UserId, u.DisplayName, u.ProfilePictureUrl, u.DateCreated, u.PackId, u.IsBanned
+                                        u.Id as UserId, u.DisplayName, u.ProfilePictureUrl, u.DateCreated, u.PackId as userPackId, u.IsBanned
                                         from Pack p
                                         join [User] u
                                         on u.Id = p.PackLeaderId
@@ -102,11 +102,18 @@ namespace Howler.Repositories
                     cmd.CommandText = @"Insert into Pack ([Name], Description, PackLeaderId, PrimaryBoardId)
                                         OUTPUT INSERTED.ID
                                         values (@name, @desc, @plid, @pbid)";
-
+                    //We also want to set the pack leader's packId on his user to the newly created pack. lol
                     cmd.Parameters.AddWithValue("@name", pack.Name);
                     cmd.Parameters.AddWithValue("@desc", pack.Description);
                     cmd.Parameters.AddWithValue("@plid", pack.PackLeaderId);
-                    cmd.Parameters.AddWithValue("@pbid", pack.PrimaryBoardId);
+                    if(pack.PrimaryBoardId == null)
+                    {
+                        cmd.Parameters.AddWithValue("@pbid", DBNull.Value);
+                    }
+                    else
+                    {
+                        cmd.Parameters.AddWithValue("@pbid", pack.PrimaryBoardId);
+                    }
 
                     pack.Id = (int)cmd.ExecuteScalar();
                 }
@@ -131,7 +138,14 @@ namespace Howler.Repositories
                     cmd.Parameters.AddWithValue("@name", pack.Name);
                     cmd.Parameters.AddWithValue("@desc", pack.Description);
                     cmd.Parameters.AddWithValue("@plid", pack.PackLeaderId);
-                    cmd.Parameters.AddWithValue("@pbid", pack.PrimaryBoardId);
+                    if (pack.PrimaryBoardId == null)
+                    {
+                        cmd.Parameters.AddWithValue("@pbid", DBNull.Value);
+                    }
+                    else
+                    {
+                        cmd.Parameters.AddWithValue("@pbid", pack.PrimaryBoardId);
+                    }
                     cmd.Parameters.AddWithValue("@id", pack.Id);
 
                     cmd.ExecuteNonQuery();
@@ -155,8 +169,39 @@ namespace Howler.Repositories
 
                     cmd.Parameters.AddWithValue("@id", packId);
                     cmd.Parameters.AddWithValue("@nullValue", DBNull.Value);
+
+                    cmd.ExecuteNonQuery();
                 }
             }
+        }
+
+        public Pack ExactSearch(string q)
+        {
+            Pack pack = null;
+            using (var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Select p.Id as PackId, p.Name, p.Description, p.PackLeaderId, p.PrimaryBoardId,
+                                        u.Id as UserId, u.DisplayName, u.ProfilePictureUrl, u.DateCreated, u.PackId as userPackId, u.IsBanned
+                                        from Pack p
+                                        join [User] u
+                                        on u.Id = p.PackLeaderId
+                                        where [Name] LIKE @q";
+                    cmd.Parameters.AddWithValue("@q", q);
+
+                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            pack = PackBuilder(reader);
+                        }
+                    }
+                }
+            }
+            return pack;
         }
 
         private Pack PackBuilder(SqlDataReader reader)
@@ -190,9 +235,9 @@ namespace Howler.Repositories
                 DateCreated = reader.GetDateTime(reader.GetOrdinal("DateCreated")),
                 IsBanned = reader.GetBoolean(reader.GetOrdinal("IsBanned"))
             };
-            if (!reader.IsDBNull(reader.GetOrdinal("PackId")))
+            if (!reader.IsDBNull(reader.GetOrdinal("userPackId")))
             {
-                user.PackId = reader.GetInt32(reader.GetOrdinal("PackId"));
+                user.PackId = reader.GetInt32(reader.GetOrdinal("userPackId"));
             }
             else
             {

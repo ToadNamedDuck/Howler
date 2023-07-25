@@ -88,7 +88,7 @@ namespace Howler.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateUser(int id, User user)
+        public IActionResult Update(int id, User user)
         {
             User currentUser = GetCurrentUser();
             if(id != user.Id)
