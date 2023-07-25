@@ -1,4 +1,5 @@
 ﻿using Howler.Models;
+using Microsoft.Data.SqlClient;
 using System.Collections.Generic;
 
 namespace Howler.Repositories

@@ -13,13 +13,13 @@ namespace Howler.Repositories
 
         }
 
-        //Get All Packs
-        //GetById
+        //Get All Packs /\
+        //GetById /\
         //Add pack
         //Edit pack
         //Delete Pack
         //Maybe get by owner Id
-        //User repo already has Get Users By Pack Id, but we could do something where we attach a list of users in the Pack object.
+        //PackLeader should have a User obj without pack info on it. We can make a User model without a pack on it later. BarrenUser
 
         public List<Pack> GetAllPacks()
         {
@@ -45,7 +45,7 @@ namespace Howler.Repositories
 
                         while (reader.Read())
                         {
-
+                            packs.Add(PackBuilder(reader));
                         }
 
                     }
@@ -53,6 +53,37 @@ namespace Howler.Repositories
             }
 
             return packs;
+        }
+
+        public Pack GetById(int id)
+        {
+            Pack pack = null;
+
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Select p.Id as PackId, p.Name, p.Description, p.PackLeaderId, p.PrimaryBoardId,
+                                        u.Id as UserId, u.DisplayName, u.ProfilePictureUrl, u.DateCreated, u.PackId, u.IsBanned
+                                        from Pack p
+                                        join [User] u
+                                        on u.Id = p.PackLeaderId
+                                        where p.Id = @id";
+
+                    cmd.Parameters.AddWithValue("@id", id);
+
+                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            pack = PackBuilder(reader);
+                        }
+                    }
+                }
+            }
+            return pack;
         }
 
         private Pack PackBuilder(SqlDataReader reader)
@@ -72,8 +103,39 @@ namespace Howler.Repositories
             {
                 pack.PrimaryBoardId = reader.GetInt32(reader.GetOrdinal("PrimaryBoardId"));
             }
+            pack.PackLeader = UserBuilder(reader);
 
             return pack;
+        }
+
+        private BarrenUser UserBuilder(SqlDataReader reader)
+        {
+            BarrenUser user = new()
+            {
+                Id = reader.GetInt32(reader.GetOrdinal("UserId")),
+                DisplayName = reader.GetString(reader.GetOrdinal("DisplayName")),
+                DateCreated = reader.GetDateTime(reader.GetOrdinal("DateCreated")),
+                IsBanned = reader.GetBoolean(reader.GetOrdinal("IsBanned"))
+            };
+            if (!reader.IsDBNull(reader.GetOrdinal("PackId")))
+            {
+                user.PackId = reader.GetInt32(reader.GetOrdinal("PackId"));
+            }
+            else
+            {
+                user.PackId = null;
+            }
+
+            if (!reader.IsDBNull(reader.GetOrdinal("ProfilePictureUrl")))
+            {
+                user.ProfilePictureUrl = reader.GetString(reader.GetOrdinal("ProfilePictureUrl"));
+            }
+            else
+            {
+                user.ProfilePictureUrl = null;
+            }
+
+            return user;
         }
 
     }
