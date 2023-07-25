@@ -11,5 +11,6 @@ namespace Howler.Repositories
         List<Pack> GetAllPacks();
         Pack GetById(int id);
         Pack ExactSearch(string q);
+        List<Pack> Search(string q);
     }
 }

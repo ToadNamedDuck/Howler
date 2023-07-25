@@ -80,6 +80,12 @@ namespace Howler.Controllers
             return NoContent();
         }
 
+        [HttpGet]
+        public IActionResult Search(string q) 
+        {
+            return Ok(_packRepository.Search(q));
+        }
+
         private User GetCurrentUser()
         {
             var firebaseUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
