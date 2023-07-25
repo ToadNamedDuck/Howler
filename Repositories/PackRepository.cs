@@ -204,6 +204,35 @@ namespace Howler.Repositories
             return pack;
         }
 
+        public List<Pack> Search(string q)
+        {
+            List<Pack> packs = new List<Pack>();
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Select p.Id as PackId, p.Name, p.Description, p.PackLeaderId, p.PrimaryBoardId,
+                                        u.Id as UserId, u.DisplayName, u.ProfilePictureUrl, u.DateCreated, u.PackId as userPackId, u.IsBanned
+                                        from Pack p
+                                        join [User] u
+                                        on u.Id = p.PackLeaderId
+                                        where [Name] LIKE @q or Description LIKE @q";
+                    cmd.Parameters.AddWithValue("@q", $"%{q}%");
+
+                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            packs.Add(PackBuilder(reader));
+                        }
+                    }
+                }
+            }
+            return packs;
+        }
+
         private Pack PackBuilder(SqlDataReader reader)
         {
             Pack pack = new()
