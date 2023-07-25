@@ -18,10 +18,21 @@ namespace Howler.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult Get()
         {
             List<Pack> packs = _packRepository.GetAllPacks();
             return Ok(packs);
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult Get(int id)
+        {
+            Pack pack = _packRepository.GetById(id);
+            if(pack == null)
+            {
+                return NotFound();
+            }
+            return Ok(pack);
         }
     }
 }
