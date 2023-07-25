@@ -14,6 +14,8 @@ namespace Howler.Controllers
     [Route("api/[controller]/[action]")]
     [ApiController]
     [Authorize]
+    //Probably add a Does User Exist that returns some sort of true or false value.
+    //Most of these shouldn't return an email. lol Would be nice to have pack tied into the user obj. Really considering removing email from user obj.
     public class UsersController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
@@ -86,7 +88,7 @@ namespace Howler.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateUser(int id, User user)
+        public IActionResult Update(int id, User user)
         {
             User currentUser = GetCurrentUser();
             if(id != user.Id)

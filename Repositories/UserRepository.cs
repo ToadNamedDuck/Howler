@@ -35,7 +35,7 @@ namespace Howler.Repositories
 
                 using (var cmd = connection.CreateCommand())
                 {
-                    cmd.CommandText = @"Select Id, DisplayName, Email, ProfilePictureUrl, DateCreated, FirebaseId, IsBanned, PackId
+                    cmd.CommandText = @"Select Id as UserId, DisplayName, Email, ProfilePictureUrl, DateCreated, FirebaseId, IsBanned, PackId
                                         from [User]
                                         where Id = @id";
                     cmd.Parameters.AddWithValue("@id", id);
@@ -61,7 +61,7 @@ namespace Howler.Repositories
 
                 using(var cmd = connection.CreateCommand())
                 {
-                    cmd.CommandText = @"Select Id, DisplayName, Email, ProfilePictureUrl, DateCreated, FirebaseId, IsBanned, PackId
+                    cmd.CommandText = @"Select Id as UserId, DisplayName, Email, ProfilePictureUrl, DateCreated, FirebaseId, IsBanned, PackId
                                         from [User]
                                         where Email = @email";
                     cmd.Parameters.AddWithValue("@email", email);
@@ -147,7 +147,7 @@ namespace Howler.Repositories
 
                 using(var cmd = connection.CreateCommand())
                 {
-                    cmd.CommandText = @"Select Id, DisplayName, Email, ProfilePictureUrl, DateCreated, FirebaseId, IsBanned, PackId
+                    cmd.CommandText = @"Select Id as UserId, DisplayName, Email, ProfilePictureUrl, DateCreated, FirebaseId, IsBanned, PackId
                                         from [User]
                                         where FirebaseId = @fbid";
 
@@ -244,7 +244,7 @@ namespace Howler.Repositories
 
                 using(var cmd = connection.CreateCommand())
                 {
-                    cmd.CommandText = @"Select Id, DisplayName, Email, ProfilePictureUrl, DateCreated, FirebaseId, IsBanned, PackId from [User] where PackId = @id";
+                    cmd.CommandText = @"Select Id as UserId, DisplayName, Email, ProfilePictureUrl, DateCreated, FirebaseId, IsBanned, PackId from [User] where PackId = @id";
                     cmd.Parameters.AddWithValue("@id", packId);
 
                     using(SqlDataReader reader = cmd.ExecuteReader())
@@ -264,7 +264,7 @@ namespace Howler.Repositories
         {
             User user = new()
             {
-                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                Id = reader.GetInt32(reader.GetOrdinal("UserId")),
                 DisplayName = reader.GetString(reader.GetOrdinal("DisplayName")),
                 Email = reader.GetString(reader.GetOrdinal("Email")),
                 DateCreated = reader.GetDateTime(reader.GetOrdinal("DateCreated")),
