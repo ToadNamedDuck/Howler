@@ -44,6 +44,10 @@ namespace Howler.Repositories
                         //it will be useful, and really it's probably a security flaw to be putting it around everywhere, especially if it's only used for login, and it won't
                         //be displayed on the website at all.
 
+                        //I did add the BarrenUser Type, I'm going to test and see how it rolls out, and test slowly adding it into places and if I can just entirely remove email from the main
+                        //User model. Barren User is still useful if a user would be attached to something like a comment, board, or in this case, a pack, so I intend on keeping that.
+                        //BUT if I don't need like.... any of the extra stuff I removed, then it would be nice to not broadcast all of people's info over internet packets.
+
                         while (reader.Read())
                         {
                             packs.Add(PackBuilder(reader));
