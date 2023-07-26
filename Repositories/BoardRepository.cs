@@ -13,10 +13,11 @@ namespace Howler.Repositories
         {
         }
 
-        //Get All Boards (That aren't pack boards)
-        //Search Boards ???
+        //Get All Boards (That aren't pack boards)/\
+        //GetBoardById
+        //Search Boards ??? --Can add towards the end of the rest
         //GetBoardByPackId
-        //Add a board - creating a pack should *probably* also create a board that is set to a pack board, and probably shouldn't be deletable.
+        //Add a board - creating a pack should *probably* also create a board that is set to a pack board, and probably shouldn't be deletable. - Can be handled in the Controller
         //Update Board
         //Delete a board.
         //GetBoardWithPosts - BoardWithPosts
@@ -49,6 +50,44 @@ namespace Howler.Repositories
             }
             return boards;
         }
+
+        public Board GetById(int id)
+            //I kind of don't want to make a whole other method for getting pack boards separately, but I *could*. I don't think it is worth it at the moment.
+            //Maybe if pack boards were their own table, and those endpoints were only hit from the pack's page. Idk.
+            //Perhaps that can be a stretch goal. But not right now. In the controller though, if it is a pack board, it makes sense to check the user's pack, and then pull the pack (if it's not null)
+            //and compare the pack's boardId to the requested id. If the packBoardId DOESN'T match, give a forbidden.
+            //If IsPackBoard = true and the user's pack is null, we can short circuit right there.
+            //If IsPackBoard = true, and the User is in a pack, pull the user's pack, and check the boardId in the pack (which should be attached to the user obj.)
+            //If those don't match, forbidden, if they do match, have a 200 Ok
+        {
+            Board board = null;
+
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Select b.Id as bId, b.[Name], b.Topic, b.Description, b.BoardOwnerId, b.IsPackBoard,
+                                        u.Id as UserId, u.DisplayName, u.ProfilePictureUrl, u.DateCreated, u.PackId as userPackId, u.IsBanned
+                                        from Board b
+                                        Join [User] u
+                                        On b.BoardOwnerId = u.Id
+                                        Where Id = @id";
+                    cmd.Parameters.AddWithValue("@id", id);
+
+                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            board = BoardBuilder(reader);
+                        }
+                    }
+                }
+            }
+            return board;
+        }
+
         private Board BoardBuilder(SqlDataReader reader)
         {
             Board board = new()
