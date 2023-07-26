@@ -103,6 +103,23 @@ namespace Howler.Controllers
             return NoContent();
         }
 
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            User sender = GetCurrentUser();
+            Board boardToDelete = _boardRepository.GetById(id);
+            if(sender.Id != boardToDelete.BoardOwnerId)
+            {
+                return Forbid();
+            }
+            if (boardToDelete.IsPackBoard)//Pack boards can't be deleted except when a pack is deleted.
+            {
+                return Forbid();
+            }
+            _boardRepository.Delete(id);
+            return NoContent();
+        }
+
         private User GetCurrentUser()
         {
             var firebaseUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
