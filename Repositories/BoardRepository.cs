@@ -3,6 +3,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Streamish.Repositories;
+using System;
 using System.Collections.Generic;
 
 namespace Howler.Repositories
@@ -14,12 +15,12 @@ namespace Howler.Repositories
         }
 
         //Get All Boards (That aren't pack boards)/\
-        //GetBoardById
-        //Search Boards ??? --Can add towards the end of the rest
-        //GetBoardByPackId
-        //Add a board - creating a pack should *probably* also create a board that is set to a pack board, and probably shouldn't be deletable. - Can be handled in the Controller
+        //GetById /\
+        //Search Boards ??? --Can add towards the end of the rest - could also do an exact name match, too, for checking duplicate names.
+        //Add a board - Can be handled in the Controller
+        //Add pack Board method, that takes a pack as a parameter and generates it a board if the packboardid is null
         //Update Board
-        //Delete a board.
+        //Delete a board. -- cannot delete a board that is a pack board. Deleting pack boards should happen from the pack controller, when a pack is deleted. Pack controller needs import this
         //GetBoardWithPosts - BoardWithPosts
 
         public List<Board> GetAllBoards()//This does not, in fact, get all boards. But it gets all of the boards that AREN'T pack boards.
@@ -86,6 +87,94 @@ namespace Howler.Repositories
                 }
             }
             return board;
+        }
+
+        public void Add(Board board)
+        {
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Insert into Board ([Name], Topic, Description, BoardOwnerId, IsPackBoard)
+                                        OUTPUT INSERTED.ID
+                                        Values (@name, @topic, @desc, @boid, @ipb)";
+                    cmd.Parameters.AddWithValue("@name", board.Name);
+                    cmd.Parameters.AddWithValue("@topic", board.Topic);
+                    cmd.Parameters.AddWithValue("@desc", board.Description);
+                    cmd.Parameters.AddWithValue("@boid", board.BoardOwnerId);
+                    cmd.Parameters.AddWithValue("@ipb", board.IsPackBoard);
+
+                    board.Id = (int)cmd.ExecuteScalar();
+                }
+            }
+        }
+
+        public void GeneratePackBoard(Pack pack)
+            //Might be able to be ran before the insert, since classes are a reference type, we can change the pack's primaryBoardId before sending it to be added in pack repository!
+            //Pack primaryBoardId should still be nullable in SQL, though, so if you delete a pack, it can delete the board first ;)
+        {
+            //Just to mess around...
+            Random rand = new();
+            int defaultNameNumber = rand.Next(1, 7);
+            //Done
+            if(pack.PrimaryBoardId != null)
+            {
+                return;
+            }
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Insert into Board ([Name], Topic, Description, BoardOwnerId, IsPackBoard)
+                                        OUTPUT INSERTED.ID
+                                        Values (@name, @topic, @desc, @boid, @ipb)";
+
+                    switch(defaultNameNumber)//Randomize the default board's name a bit because it is fun :)
+                    {
+                        case 1:
+                            {
+                                cmd.Parameters.AddWithValue("@name", $"{pack.Name}'s Board");
+                                break;
+                            }
+                        case 2:
+                            {
+                                cmd.Parameters.AddWithValue("@name", $"{pack.Name}'s Cave");
+                                break;
+                            }
+                        case 3:
+                            {
+                                cmd.Parameters.AddWithValue("@name", $"{pack.Name}'s Den");
+                                break;
+                            }
+                        case 4:
+                            {
+                                cmd.Parameters.AddWithValue("@name", $"{pack.Name}'s Hunting Grounds");
+                                break;
+                            }
+                        case 5:
+                            {
+                                cmd.Parameters.AddWithValue("@name", $"City of {pack.Name}");
+                                break;
+                            }
+                        case 6:
+                            {
+                                cmd.Parameters.AddWithValue("@name", $"{pack.Name}'s Meeting Spot");
+                                break;
+                            }
+                    }
+
+                    cmd.Parameters.AddWithValue("@topic", "General discussion for all things related to the pack.");
+                    cmd.Parameters.AddWithValue("@desc", "You should edit me and put a fitting description of the expectations you have for your pack discussions! You could put a few basic rules, or define goals for your pack! Really, you could put anything, if you wanted to. However, the maximum length is this.");
+                    cmd.Parameters.AddWithValue("@boid", pack.PackLeaderId);
+                    cmd.Parameters.AddWithValue("@ipb", 1);
+
+                    pack.PrimaryBoardId = (int)cmd.ExecuteScalar();
+                }
+            }
         }
 
         private Board BoardBuilder(SqlDataReader reader)
