@@ -218,6 +218,8 @@ namespace Howler.Repositories
                 {
                     cmd.CommandText = @"Delete from Board where Id = @id";
 
+                    cmd.Parameters.AddWithValue("@id", id);
+
                     cmd.ExecuteNonQuery();
                 }
             }
