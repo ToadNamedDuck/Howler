@@ -17,7 +17,7 @@ namespace Howler.Repositories
         //Get All Boards (That aren't pack boards)/\
         //GetById /\
         //Search Boards ??? --Can add towards the end of the rest - could also do an exact name match, too, for checking duplicate names.
-        //Add a board - Can be handled in the Controller
+        //Add a board /\
         //Add pack Board method, that takes a pack as a parameter and generates it a board if the packboardid is null
         //Update Board
         //Delete a board. -- cannot delete a board that is a pack board. Deleting pack boards should happen from the pack controller, when a pack is deleted. Pack controller needs import this
@@ -115,14 +115,16 @@ namespace Howler.Repositories
             //Might be able to be ran before the insert, since classes are a reference type, we can change the pack's primaryBoardId before sending it to be added in pack repository!
             //Pack primaryBoardId should still be nullable in SQL, though, so if you delete a pack, it can delete the board first ;)
         {
-            //Just to mess around...
-            Random rand = new();
-            int defaultNameNumber = rand.Next(1, 7);
-            //Done
             if(pack.PrimaryBoardId != null)
             {
                 return;
             }
+
+            //Just to mess around...
+            Random rand = new();
+            int defaultNameNumber = rand.Next(1, 7);
+            //Done
+
             using(var connection = Connection)
             {
                 connection.Open();
