@@ -19,7 +19,7 @@ namespace Howler.Repositories
         //Add pack /\
         //Edit pack /\
         //Delete Pack /\
-        //Search pack / - Exact matches work. Add regular searches.
+        //Search pack //\\ - Exact matches work, and regular searches this hit the name and the description.
         //PackLeader should have a User obj without pack info on it. We can make a User model without a pack on it later. -- BarrenUser
 
         public List<Pack> GetAllPacks()
@@ -116,6 +116,16 @@ namespace Howler.Repositories
                     }
 
                     pack.Id = (int)cmd.ExecuteScalar();
+
+                    //Now we set the user's PackId to the newly created Pack's Id.
+                    cmd.Parameters.Clear();
+                    cmd.CommandText = @"Update [User]
+                                        Set PackId = @pid
+                                        where Id = @uid";
+                    cmd.Parameters.AddWithValue("@pid", pack.Id);
+                    cmd.Parameters.AddWithValue("@uid", pack.PackLeaderId);
+
+                    cmd.ExecuteNonQuery();
                 }
             }
         }
