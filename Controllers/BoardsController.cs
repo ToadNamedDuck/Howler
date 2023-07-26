@@ -62,6 +62,7 @@ namespace Howler.Controllers
         [HttpPost]
         public IActionResult Post(Board board)
         {
+            board.IsPackBoard = false;
             Board boardWithSameName = _boardRepository.ExactSearch(board.Name);
             User sender = GetCurrentUser();
             if (boardWithSameName != null)
@@ -108,6 +109,10 @@ namespace Howler.Controllers
         {
             User sender = GetCurrentUser();
             Board boardToDelete = _boardRepository.GetById(id);
+            if(boardToDelete == null)
+            {
+                return NotFound();
+            }
             if(sender.Id != boardToDelete.BoardOwnerId)
             {
                 return Forbid();
