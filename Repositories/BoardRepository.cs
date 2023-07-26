@@ -104,7 +104,7 @@ namespace Howler.Repositories
                     cmd.Parameters.AddWithValue("@topic", board.Topic);
                     cmd.Parameters.AddWithValue("@desc", board.Description);
                     cmd.Parameters.AddWithValue("@boid", board.BoardOwnerId);
-                    cmd.Parameters.AddWithValue("@ipb", board.IsPackBoard);
+                    cmd.Parameters.AddWithValue("@ipb", 0);//always generates a non-pack board.
 
                     board.Id = (int)cmd.ExecuteScalar();
                 }

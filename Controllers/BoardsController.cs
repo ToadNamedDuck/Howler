@@ -120,6 +120,37 @@ namespace Howler.Controllers
             return NoContent();
         }
 
+        [HttpGet("{id}")]
+        public IActionResult GetWithPosts(int id)
+        {
+            User sender = GetCurrentUser();
+            Pack senderPack = null;
+
+            if(sender.PackId != null)
+            {
+                senderPack = _packRepository.GetById((int)sender.PackId);
+            }
+
+            BoardWithPosts board = _boardRepository.GetWithPosts(id);
+
+            if (board.IsPackBoard)
+            {
+                if (board.IsPackBoard && senderPack == null)
+                {
+                    return Forbid();
+                }
+                if (board.IsPackBoard && board.Id == senderPack.PrimaryBoardId)
+                {
+                    return Ok(board);
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            return Ok(board);
+        }
+
         private User GetCurrentUser()
         {
             var firebaseUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
