@@ -18,7 +18,7 @@ namespace Howler.Repositories
         //GetById /\
         //Search Boards ??? --Can add towards the end of the rest - could also do an exact name match, too, for checking duplicate names. / -Need to add regular search, besides exact name search. lol
         //Add a board /\
-        //GeneratePackBoard, that takes a pack as a parameter and generates it a board if the packboardid is null /\
+        //GeneratePackBoard, that takes a pack as a parameter and generates it a board if the packboardid is null /\ - utilized by PackController
         //Update Board /\
         //Delete a board. -- cannot delete a board that is a pack board. Deleting pack boards should happen from the pack controller, when a pack is deleted. Pack controller needs import this /\
         //GetBoardWithPosts - BoardWithPosts /\

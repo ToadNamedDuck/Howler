@@ -78,6 +78,31 @@ namespace Howler.Controllers
             return CreatedAtAction(nameof(GetById), new { id = board.Id }, board);
         }
 
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, Board board)
+        {
+            User sender = GetCurrentUser();
+            Board boardToEdit = _boardRepository.GetById(id);
+            if(boardToEdit == null)
+            {
+                return NotFound();
+            }
+            if(board.IsPackBoard != boardToEdit.IsPackBoard)
+            {
+                return BadRequest();
+            }
+            if(boardToEdit.BoardOwnerId != sender.Id)
+            {
+                return Forbid();
+            }
+            if(board.Id != boardToEdit.Id || board.Id != id)
+            {
+                return BadRequest();
+            }
+            _boardRepository.Update(board);
+            return NoContent();
+        }
+
         private User GetCurrentUser()
         {
             var firebaseUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
