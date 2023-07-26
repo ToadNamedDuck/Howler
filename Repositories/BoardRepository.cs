@@ -19,9 +19,9 @@ namespace Howler.Repositories
         //Search Boards ??? --Can add towards the end of the rest - could also do an exact name match, too, for checking duplicate names.
         //Add a board /\
         //GeneratePackBoard, that takes a pack as a parameter and generates it a board if the packboardid is null /\
-        //Update Board
-        //Delete a board. -- cannot delete a board that is a pack board. Deleting pack boards should happen from the pack controller, when a pack is deleted. Pack controller needs import this
-        //GetBoardWithPosts - BoardWithPosts
+        //Update Board /\
+        //Delete a board. -- cannot delete a board that is a pack board. Deleting pack boards should happen from the pack controller, when a pack is deleted. Pack controller needs import this /\
+        //GetBoardWithPosts - BoardWithPosts /\
 
         public List<Board> GetAllBoards()//This does not, in fact, get all boards. But it gets all of the boards that AREN'T pack boards.
             //The reason for this is because pack boards are PRIVATE spaces. If you're not in the pack, you should have as little information
@@ -219,6 +219,93 @@ namespace Howler.Repositories
                     cmd.ExecuteNonQuery();
                 }
             }
+        }
+
+        public BoardWithPosts GetWithPosts(int id)
+        {
+            BoardWithPosts board = null;
+            using(var connection = Connection) 
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"select b.Id as bId, b.[Name], b.Topic, b.Description, b.BoardOwnerId, b.IsPackBoard,
+                                        u.Id as UserId, u.DisplayName, u.ProfilePictureUrl, u.DateCreated, u.PackId as userPackId, u.IsBanned,
+
+                                        p.Id as pId, p.Title, p.Content, p.UserId as PostUserId, p.BoardId, p.CreatedOn,
+                                        pu.Id as PostUserId, pu.DisplayName as PostUserDisplayName, pu.ProfilePictureUrl as PostUserPfp, pu.DateCreated as PostUserDate, pu.PackId as PostUserPackId, pu.IsBanned as PostUserIsBanned
+                                        
+                                        from Board b
+                                        join [User] u on b.BoardOwnerId = u.Id
+                                        left join Post p on p.BoardId = b.Id
+                                        join [User] pu on p.UserId = pu.Id
+
+                                        Where b.Id = @id";
+
+                    cmd.Parameters.AddWithValue("@id", id);
+
+                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            if(board == null) //If there's data, then there's a board, so if board = null, then we need to intialize it.
+                            {
+                                board = new()
+                                {
+                                    Id = reader.GetInt32(reader.GetOrdinal("bId")),
+                                    Name = reader.GetString(reader.GetOrdinal("Name")),
+                                    Topic = reader.GetString(reader.GetOrdinal("Topic")),
+                                    Description = reader.GetString(reader.GetOrdinal("Description")),
+                                    BoardOwnerId = reader.GetInt32(reader.GetOrdinal("BoardOwnerId")),
+                                    IsPackBoard = reader.GetBoolean(reader.GetOrdinal("IsPackBoard")),
+                                    BoardOwner = UserBuilder(reader),
+                                    Posts = new List<Post>()
+                                };
+                            }
+
+                            Post post = new()//After board is initialized, we add posts to the board's post list. This runs every cycle.
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("pId")),
+                                Title = reader.GetString(reader.GetOrdinal("Title")),
+                                Content = reader.GetString(reader.GetOrdinal("Content")),
+                                UserId = reader.GetInt32(reader.GetOrdinal("PostUserId")),
+                                BoardId = reader.GetInt32(reader.GetOrdinal("BoardId")),
+                                CreatedOn = reader.GetDateTime(reader.GetOrdinal("CreatedOn")),
+                                User = new()
+                                {
+                                    Id = reader.GetInt32(reader.GetOrdinal("PostUserId")),
+                                    DisplayName = reader.GetString(reader.GetOrdinal("PostUserDisplayName")),
+                                    DateCreated = reader.GetDateTime(reader.GetOrdinal("PostUserDate")),
+                                    IsBanned = reader.GetBoolean(reader.GetOrdinal("PostUserIsBanned"))
+
+                                }
+                            };
+
+                            if (reader.IsDBNull(reader.GetOrdinal("PostUserPfp")))
+                            {
+                                post.User.ProfilePictureUrl = null;
+                            }
+                            else
+                            {
+                                post.User.ProfilePictureUrl = reader.GetString(reader.GetOrdinal("PostUserPfp"));
+                            }
+
+                            if (reader.IsDBNull(reader.GetOrdinal("PostUserPackId")))
+                            {
+                                post.User.PackId = null;
+                            }
+                            else
+                            {
+                                post.User.PackId = reader.GetInt32(reader.GetOrdinal("PostUserPackId"));
+                            }
+
+                            board.Posts.Add(post);
+                        }
+                    }
+                }
+            }
+            return board;
         }
 
         private Board BoardBuilder(SqlDataReader reader)
