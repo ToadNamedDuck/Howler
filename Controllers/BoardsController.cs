@@ -151,6 +151,13 @@ namespace Howler.Controllers
             return Ok(board);
         }
 
+        [HttpGet]
+        public IActionResult Search(string q)
+        {
+            List<Board> boards = _boardRepository.Search(q);
+            return Ok(boards);
+        }
+
         private User GetCurrentUser()
         {
             var firebaseUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
