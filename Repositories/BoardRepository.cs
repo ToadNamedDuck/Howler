@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Howler.Repositories
 {
-    public class BoardRepository : BaseRepository
+    public class BoardRepository : BaseRepository, IBoardRepository
     {
         public BoardRepository(IConfiguration configuration) : base(configuration)
         {
@@ -24,15 +24,15 @@ namespace Howler.Repositories
         //GetBoardWithPosts - BoardWithPosts /\
 
         public List<Board> GetAllBoards()//This does not, in fact, get all boards. But it gets all of the boards that AREN'T pack boards.
-            //The reason for this is because pack boards are PRIVATE spaces. If you're not in the pack, you should have as little information
-            //as possible about what goes on in their boards.
+                                         //The reason for this is because pack boards are PRIVATE spaces. If you're not in the pack, you should have as little information
+                                         //as possible about what goes on in their boards.
         {
             List<Board> boards = new List<Board>();
-            using(var connection = Connection)
+            using (var connection = Connection)
             {
                 connection.Open();
 
-                using(var cmd = connection.CreateCommand())
+                using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Select b.Id as bId, b.[Name], b.Topic, b.Description, b.BoardOwnerId, b.IsPackBoard,
                                         u.Id as UserId, u.DisplayName, u.ProfilePictureUrl, u.DateCreated, u.PackId as userPackId, u.IsBanned
@@ -40,7 +40,7 @@ namespace Howler.Repositories
                                         Join [User] u
                                         On b.BoardOwnerId = u.Id
                                         Where IsPackBoard = 0";
-                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
@@ -53,21 +53,21 @@ namespace Howler.Repositories
         }
 
         public Board GetById(int id)
-            //I kind of don't want to make a whole other method for getting pack boards separately, but I *could*. I don't think it is worth it at the moment.
-            //Maybe if pack boards were their own table, and those endpoints were only hit from the pack's page. Idk.
-            //Perhaps that can be a stretch goal. But not right now. In the controller though, if it is a pack board, it makes sense to check the user's pack, and then pull the pack (if it's not null)
-            //and compare the pack's boardId to the requested id. If the packBoardId DOESN'T match, give a forbidden.
-            //If IsPackBoard = true and the user's pack is null, we can short circuit right there.
-            //If IsPackBoard = true, and the User is in a pack, pull the user's pack, and check the boardId in the pack (which should be attached to the user obj.)
-            //If those don't match, forbidden, if they do match, have a 200 Ok
+        //I kind of don't want to make a whole other method for getting pack boards separately, but I *could*. I don't think it is worth it at the moment.
+        //Maybe if pack boards were their own table, and those endpoints were only hit from the pack's page. Idk.
+        //Perhaps that can be a stretch goal. But not right now. In the controller though, if it is a pack board, it makes sense to check the user's pack, and then pull the pack (if it's not null)
+        //and compare the pack's boardId to the requested id. If the packBoardId DOESN'T match, give a forbidden.
+        //If IsPackBoard = true and the user's pack is null, we can short circuit right there.
+        //If IsPackBoard = true, and the User is in a pack, pull the user's pack, and check the boardId in the pack (which should be attached to the user obj.)
+        //If those don't match, forbidden, if they do match, have a 200 Ok
         {
             Board board = null;
 
-            using(var connection = Connection)
+            using (var connection = Connection)
             {
                 connection.Open();
 
-                using(var cmd = connection.CreateCommand())
+                using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Select b.Id as bId, b.[Name], b.Topic, b.Description, b.BoardOwnerId, b.IsPackBoard,
                                         u.Id as UserId, u.DisplayName, u.ProfilePictureUrl, u.DateCreated, u.PackId as userPackId, u.IsBanned
@@ -77,7 +77,7 @@ namespace Howler.Repositories
                                         Where Id = @id";
                     cmd.Parameters.AddWithValue("@id", id);
 
-                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         if (reader.Read())
                         {
@@ -91,11 +91,11 @@ namespace Howler.Repositories
 
         public void Add(Board board)
         {
-            using(var connection = Connection)
+            using (var connection = Connection)
             {
                 connection.Open();
 
-                using(var cmd = connection.CreateCommand())
+                using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Insert into Board ([Name], Topic, Description, BoardOwnerId, IsPackBoard)
                                         OUTPUT INSERTED.ID
@@ -112,10 +112,12 @@ namespace Howler.Repositories
         }
 
         public void GeneratePackBoard(Pack pack)
-            //Might be able to be ran before the insert, since classes are a reference type, we can change the pack's primaryBoardId before sending it to be added in pack repository!
-            //Pack primaryBoardId should still be nullable in SQL, though, so if you delete a pack, it can delete the board first ;)
+        //Might be able to be ran before the pack is inserted from the pack repository, since classes are a reference type,
+        //we can change the pack's primaryBoardId before sending it to be added in pack repository!
+        //This means the pack controller needs a copy of this repo so that it can call this. (and also the delete if a pack is deleted :3)
+        //Pack primaryBoardId should still be nullable in SQL, though, so if you delete a pack, it can delete the board first ;)
         {
-            if(pack.PrimaryBoardId != null)
+            if (pack.PrimaryBoardId != null)
             {
                 return;
             }
@@ -125,17 +127,17 @@ namespace Howler.Repositories
             int defaultNameNumber = rand.Next(1, 7);
             //Done
 
-            using(var connection = Connection)
+            using (var connection = Connection)
             {
                 connection.Open();
 
-                using(var cmd = connection.CreateCommand())
+                using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Insert into Board ([Name], Topic, Description, BoardOwnerId, IsPackBoard)
                                         OUTPUT INSERTED.ID
                                         Values (@name, @topic, @desc, @boid, @ipb)";
 
-                    switch(defaultNameNumber)//Randomize the default board's name a bit because it is fun :)
+                    switch (defaultNameNumber)//Randomize the default board's name a bit because it is fun :)
                     {
                         case 1:
                             {
@@ -182,11 +184,11 @@ namespace Howler.Repositories
         public void Update(Board board)
         {
             //IsPackBoard not changeable, neither is Id
-            using(var connection = Connection)
+            using (var connection = Connection)
             {
                 connection.Open();
 
-                using(var cmd = connection.CreateCommand())
+                using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Update Board
                                         Set Name = @name,
@@ -208,11 +210,11 @@ namespace Howler.Repositories
 
         public void Delete(int id)
         {
-            using(var connection = Connection)
+            using (var connection = Connection)
             {
                 connection.Open();
 
-                using(var cmd = connection.CreateCommand())
+                using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Delete from Board where Id = @id";
 
@@ -224,11 +226,11 @@ namespace Howler.Repositories
         public BoardWithPosts GetWithPosts(int id)
         {
             BoardWithPosts board = null;
-            using(var connection = Connection) 
+            using (var connection = Connection)
             {
                 connection.Open();
 
-                using(var cmd = connection.CreateCommand())
+                using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"select b.Id as bId, b.[Name], b.Topic, b.Description, b.BoardOwnerId, b.IsPackBoard,
                                         u.Id as UserId, u.DisplayName, u.ProfilePictureUrl, u.DateCreated, u.PackId as userPackId, u.IsBanned,
@@ -245,11 +247,11 @@ namespace Howler.Repositories
 
                     cmd.Parameters.AddWithValue("@id", id);
 
-                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            if(board == null) //If there's data, then there's a board, so if board = null, then we need to intialize it.
+                            if (board == null) //If there's data, then there's a board, so if board = null, then we need to intialize it.
                             {
                                 board = new()
                                 {
