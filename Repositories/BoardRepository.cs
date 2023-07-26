@@ -18,7 +18,7 @@ namespace Howler.Repositories
         //GetById /\
         //Search Boards ??? --Can add towards the end of the rest - could also do an exact name match, too, for checking duplicate names.
         //Add a board /\
-        //Add pack Board method, that takes a pack as a parameter and generates it a board if the packboardid is null
+        //GeneratePackBoard, that takes a pack as a parameter and generates it a board if the packboardid is null /\
         //Update Board
         //Delete a board. -- cannot delete a board that is a pack board. Deleting pack boards should happen from the pack controller, when a pack is deleted. Pack controller needs import this
         //GetBoardWithPosts - BoardWithPosts
@@ -175,6 +175,48 @@ namespace Howler.Repositories
                     cmd.Parameters.AddWithValue("@ipb", 1);
 
                     pack.PrimaryBoardId = (int)cmd.ExecuteScalar();
+                }
+            }
+        }
+
+        public void Update(Board board)
+        {
+            //IsPackBoard not changeable, neither is Id
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Update Board
+                                        Set Name = @name,
+                                        Topic = @topic,
+                                        Description = @desc,
+                                        BoardOwnerId = @boid
+                                        Where Id = @id";
+
+                    cmd.Parameters.AddWithValue("@id", board.Id);
+                    cmd.Parameters.AddWithValue("@name", board.Name);
+                    cmd.Parameters.AddWithValue("@topic", board.Topic);
+                    cmd.Parameters.AddWithValue("@desc", board.Description);
+                    cmd.Parameters.AddWithValue("@boid", board.BoardOwnerId);
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void Delete(int id)
+        {
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Delete from Board where Id = @id";
+
+                    cmd.ExecuteNonQuery();
                 }
             }
         }
