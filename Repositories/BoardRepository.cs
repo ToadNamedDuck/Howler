@@ -74,7 +74,7 @@ namespace Howler.Repositories
                                         from Board b
                                         Join [User] u
                                         On b.BoardOwnerId = u.Id
-                                        Where Id = @id";
+                                        Where b.Id = @id";
                     cmd.Parameters.AddWithValue("@id", id);
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
