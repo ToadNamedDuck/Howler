@@ -12,5 +12,7 @@ namespace Howler.Repositories
         Board GetById(int id);
         BoardWithPosts GetWithPosts(int id);
         void Update(Board board);
+        Board ExactSearch(string q);
+        List<Board> Search(string q);
     }
 }

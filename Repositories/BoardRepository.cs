@@ -16,7 +16,7 @@ namespace Howler.Repositories
 
         //Get All Boards (That aren't pack boards)/\
         //GetById /\
-        //Search Boards ??? --Can add towards the end of the rest - could also do an exact name match, too, for checking duplicate names.
+        //Search Boards ??? --Can add towards the end of the rest - could also do an exact name match, too, for checking duplicate names. / -Need to add regular search, besides exact name search. lol
         //Add a board /\
         //GeneratePackBoard, that takes a pack as a parameter and generates it a board if the packboardid is null /\
         //Update Board /\
@@ -310,6 +310,72 @@ namespace Howler.Repositories
                 }
             }
             return board;
+        }
+
+        public Board ExactSearch(string q)
+        {
+            Board board = null;
+
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Select b.Id as bId, b.[Name], b.Topic, b.Description, b.BoardOwnerId, b.IsPackBoard,
+                                        u.Id as UserId, u.DisplayName, u.ProfilePictureUrl, u.DateCreated, u.PackId as userPackId, u.IsBanned
+                                        from Board b
+                                        Join [User] u
+                                        On b.BoardOwnerId = u.Id
+                                        Where b.Name LIKE @q";
+                    cmd.Parameters.AddWithValue("@q", q);
+
+                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            board = BoardBuilder(reader);
+                        }
+                    }
+                }
+            }
+
+            return board;
+        }
+
+        public List<Board> Search(string q)
+        {
+            List<Board> boards = new();
+
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Select b.Id as bId, b.[Name], b.Topic, b.Description, b.BoardOwnerId, b.IsPackBoard,
+                                        u.Id as UserId, u.DisplayName, u.ProfilePictureUrl, u.DateCreated, u.PackId as userPackId, u.IsBanned
+                                        from Board b
+                                        Join [User] u
+                                        On b.BoardOwnerId = u.Id
+                                        Where b.Name LIKE @q OR b.Topic LIKE @q OR b.Description LIKE @q";
+
+                    cmd.Parameters.AddWithValue("@q", $"%{q}%");
+
+                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            Board board = BoardBuilder(reader);
+                            if(!board.IsPackBoard)//Pack boards can't be searched, even by members. Must be viewed from pack page link. lol
+                            {
+                                boards.Add(board);
+                            }
+                        }
+                    }
+                }
+            }
+            return boards;
         }
 
         private Board BoardBuilder(SqlDataReader reader)

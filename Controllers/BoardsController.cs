@@ -1,6 +1,8 @@
-﻿using Howler.Models;
+﻿using Azure;
+using Howler.Models;
 using Howler.Repositories;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -56,6 +58,24 @@ namespace Howler.Controllers
                 }
             }
             return Ok(board);
+        }
+        [HttpPost]
+        public IActionResult Post(Board board)
+        {
+            Board boardWithSameName = _boardRepository.ExactSearch(board.Name);
+            User sender = GetCurrentUser();
+            if (boardWithSameName != null)
+            {
+                ObjectResult response = new ObjectResult(new { title = "Already Exists", status = 420, message = $"A board named '{boardWithSameName.Name}' already exists in the database" });
+                response.StatusCode = 420;
+                return response;
+            }
+            if(sender.Id != board.BoardOwnerId)
+            {
+                return BadRequest();
+            }
+            _boardRepository.Add(board);
+            return CreatedAtAction(nameof(GetById), new { id = board.Id }, board);
         }
 
         private User GetCurrentUser()
