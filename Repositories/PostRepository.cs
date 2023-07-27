@@ -19,11 +19,11 @@ namespace Howler.Repositories
         //Add /\
         //Update -- should only be editable by the person who wrote the post. /\
         //Delete -- Posts should be deletable by board owners and also by the member who wrote the post. /\
-        //GetWithComments -- Needs a new model
-        //GetByBoardId -- List<Post> -- may not be necessary, since boards already get boards with posts on them. If necessary, I'll add this later.
-        //Search - no need for exact search, like other repositories - I'm not going to enforce a name restriction on posts, in case a pack board has a post
+        //GetWithComments -- Needs a new model /\
+        //Search - no need for exact search, like other repositories - I'm not going to enforce a name restriction on posts, in case a pack board has a post /\
                     //called "Do sheep taste good?" and someone makes a post named "Do sheep taste good?" in a public board. However, it will only return results
-                    //from public boards. Search functionality for pack posts can be handled by react on the front end.
+                    //from public boards. Search functionality for pack posts can be handled by react on the front end using state and array method filtering in js/jsx.
+        //GetByBoardId -- List<Post> -- may not be necessary, since boards already get boards with posts on them. If necessary, I'll add this later.
 
         public List<Post> GetAllPosts()
         {
@@ -237,6 +237,40 @@ namespace Howler.Repositories
                 }
             }
             return post;
+        }
+
+        public List<Post> Search(string q)//doesn't return posts from pack boards. :)
+        {
+            List<Post> posts = new();
+
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Select po.Id as postId, po.Title, po.Content, po.UserId as PostUserId, po.BoardId as PostBoardId, po.CreatedOn as PostDate,
+                                                pu.Id as userId, pu.DisplayName, pu.DateCreated as userDate, pu.IsBanned, pu.ProfilePictureUrl, pu.PackId,
+                                                bo.IsPackBoard
+
+                                                from Post po
+                                                join [User] pu on po.UserId = pu.Id
+                                                join Board bo on po.BoardId = bo.Id
+                                                where Title like @q AND bo.IsPackBoard = 0
+                                                OR Content like @q AND bo.IsPackBoard = 0";
+
+                    cmd.Parameters.AddWithValue("@q", $"%{q}%");
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            posts.Add(PostBuilder(reader));
+                        }
+                    }
+                }
+            }
+            return posts;
         }
 
         private Post PostBuilder(SqlDataReader reader)
