@@ -134,6 +134,22 @@ namespace Howler.Repositories
             }
         }
 
+        public void Delete(int id)
+        {
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Delete from Post where Id = @id";
+                    cmd.Parameters.AddWithValue("@id", id);
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
         private Post PostBuilder(SqlDataReader reader)
         {
             Post post = new()
