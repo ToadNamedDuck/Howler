@@ -16,9 +16,9 @@ namespace Howler.Repositories
         //GetById -- Front end should only really use GetWithComments endpoint. This is mostly for Getting the board Id off the post for authorization purposes. /\
                     //Also for I guess the CreatedAtAction. Will add it to the api for sake of completeness. The controller needs to use the board id to determine
                     //whether or not the post is on a pack board to determine if the user should be able to access the post or not. This only returns the post. It doesn't care.
-        //Add
-        //Update -- should only be editable by the person who wrote the post.
-        //Delete -- Posts should be deletable by board owners and also by the member who wrote the post.
+        //Add /\
+        //Update -- should only be editable by the person who wrote the post. /\
+        //Delete -- Posts should be deletable by board owners and also by the member who wrote the post. /\
         //GetWithComments -- Needs a new model
         //GetByBoardId -- List<Post> -- may not be necessary, since boards already get boards with posts on them. If necessary, I'll add this later.
         //Search - no need for exact search, like other repositories - I'm not going to enforce a name restriction on posts, in case a pack board has a post
@@ -148,6 +148,95 @@ namespace Howler.Repositories
                     cmd.ExecuteNonQuery();
                 }
             }
+        }
+
+        public PostWithComments GetWithComments(int id)
+        {
+            PostWithComments post = null;
+
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Select po.Id as postId, po.Title, po.Content, po.UserId as PostUserId, po.BoardId as PostBoardId, po.CreatedOn as PostDate,
+                                                pu.Id as userId, pu.DisplayName, pu.DateCreated as userDate, pu.IsBanned, pu.ProfilePictureUrl, pu.PackId,
+
+                                                co.Id as commentId, co.Content as commentContent, co.PostId as commentPostId, co.UserId as commentUserId,
+                                                co.CreatedOn as commentDate,
+                                                cu.Id as commentUserId, cu.DisplayName as commentUserDPN, cu.DateCreated as commentUserDate, cu.IsBanned as commentUIB,
+                                                cu.ProfilePictureUrl as commentUPFP, cu.PackId as commentPackId
+
+                                                from Post po
+                                                join [User] pu on po.UserId = pu.Id
+                                                Left Join Comment co on co.PostId = po.Id
+                                                join [User] cu on co.UserId = cu.Id
+                                                where po.Id = @id";
+
+                    cmd.Parameters.AddWithValue("@id", id);
+
+                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            if(post == null)
+                            {
+                                Post noCommentPost = PostBuilder(reader);
+                                List<Comment> comments = new List<Comment>();
+                                post = new()
+                                {
+                                    Id = noCommentPost.Id,
+                                    Title = noCommentPost.Title,
+                                    Content = noCommentPost.Content,
+                                    UserId = noCommentPost.UserId,
+                                    BoardId = noCommentPost.BoardId,
+                                    CreatedOn = noCommentPost.CreatedOn,
+                                    Comments = comments,
+                                    User = noCommentPost.User
+                                };
+                            }
+
+                            Comment comment = new()
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("commentId")),
+                                Content = reader.GetString(reader.GetOrdinal("commentContent")),
+                                PostId = reader.GetInt32(reader.GetOrdinal("commentPostId")),
+                                UserId = reader.GetInt32(reader.GetOrdinal("commentUserId")),
+                                CreatedOn = reader.GetDateTime(reader.GetOrdinal("commentDate")),
+                                User = new()
+                                {
+                                    Id = reader.GetInt32(reader.GetOrdinal("commentUserId")),
+                                    DisplayName = reader.GetString(reader.GetOrdinal("commentUserDPN")),
+                                    DateCreated = reader.GetDateTime(reader.GetOrdinal("commentUserDate")),
+                                    IsBanned = reader.GetBoolean(reader.GetOrdinal("commentUIB"))
+                                }
+                            };
+
+                            if (reader.IsDBNull(reader.GetOrdinal("commentUPFP")))
+                            {
+                                comment.User.ProfilePictureUrl = null;
+                            }
+                            else
+                            {
+                                comment.User.ProfilePictureUrl = reader.GetString(reader.GetOrdinal("commentUPFP"));
+                            }
+
+                            if (reader.IsDBNull(reader.GetOrdinal("commentPackId")))
+                            {
+                                comment.User.ProfilePictureUrl = null;
+                            }
+                            else
+                            {
+                                comment.User.ProfilePictureUrl = reader.GetString(reader.GetOrdinal("commentPackId"));
+                            }
+
+                            post.Comments.Add(comment);
+                        }
+                    }
+                }
+            }
+            return post;
         }
 
         private Post PostBuilder(SqlDataReader reader)
