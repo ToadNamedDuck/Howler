@@ -13,7 +13,7 @@ namespace Howler.Repositories
         }
 
         //GetAllPosts -- mostly for the sake of having it. I can't imagine it would be necessary for anything at all. Doesn't return posts from a pack board. /\
-        //GetById -- Front end should only really use GetWithComments endpoint. This is mostly for Getting the board Id off the post for authorization purposes. 
+        //GetById -- Front end should only really use GetWithComments endpoint. This is mostly for Getting the board Id off the post for authorization purposes. /\
                     //Also for I guess the CreatedAtAction. Will add it to the api for sake of completeness. The controller needs to use the board id to determine
                     //whether or not the post is on a pack board to determine if the user should be able to access the post or not. This only returns the post. It doesn't care.
         //Add
@@ -87,6 +87,29 @@ namespace Howler.Repositories
             }
 
             return post;
+        }
+
+        public void Add(Post post)
+        {
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Insert into Post (Title, Content, UserId, BoardId, CreatedOn)
+                                        OUTPUT INSERTED ID
+                                        Values (@title, @content, @userId, @boardId, @createdOn)";
+
+                    cmd.Parameters.AddWithValue("@title", post.Title);
+                    cmd.Parameters.AddWithValue("@content", post.Content);
+                    cmd.Parameters.AddWithValue("@userId", post.UserId);
+                    cmd.Parameters.AddWithValue("@boardId", post.BoardId);
+                    cmd.Parameters.AddWithValue("createdOn", post.CreatedOn);
+
+                    post.Id = (int)cmd.ExecuteScalar();
+                }
+            }
         }
 
         private Post PostBuilder(SqlDataReader reader)
