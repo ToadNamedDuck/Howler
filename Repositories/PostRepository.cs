@@ -112,6 +112,28 @@ namespace Howler.Repositories
             }
         }
 
+        public void Update(Post post)
+        {
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"UPDATE Post
+                                        Set Title = @title,
+                                        Content = @content
+                                        Where Id = @id";
+
+                    cmd.Parameters.AddWithValue("@title", post.Title);
+                    cmd.Parameters.AddWithValue("@content", post.Content);
+                    cmd.Parameters.AddWithValue("@id", post.Id);
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
         private Post PostBuilder(SqlDataReader reader)
         {
             Post post = new()
