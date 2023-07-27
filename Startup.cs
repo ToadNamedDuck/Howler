@@ -76,6 +76,7 @@ namespace Howler
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IPackRepository, PackRepository>();
             services.AddTransient<IBoardRepository, BoardRepository>();
+            services.AddTransient<IPostRepository, PostRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

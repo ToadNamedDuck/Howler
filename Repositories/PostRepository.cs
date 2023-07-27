@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Howler.Repositories
 {
-    public class PostRepository : BaseRepository
+    public class PostRepository : BaseRepository, IPostRepository
     {
         public PostRepository(IConfiguration configuration) : base(configuration)
         {
@@ -14,26 +14,26 @@ namespace Howler.Repositories
 
         //GetAllPosts -- mostly for the sake of having it. I can't imagine it would be necessary for anything at all. Doesn't return posts from a pack board. /\
         //GetById -- Front end should only really use GetWithComments endpoint. This is mostly for Getting the board Id off the post for authorization purposes. /\
-                    //Also for I guess the CreatedAtAction. Will add it to the api for sake of completeness. The controller needs to use the board id to determine
-                    //whether or not the post is on a pack board to determine if the user should be able to access the post or not. This only returns the post. It doesn't care.
+        //Also for I guess the CreatedAtAction. Will add it to the api for sake of completeness. The controller needs to use the board id to determine
+        //whether or not the post is on a pack board to determine if the user should be able to access the post or not. This only returns the post. It doesn't care.
         //Add /\
         //Update -- should only be editable by the person who wrote the post. /\
         //Delete -- Posts should be deletable by board owners and also by the member who wrote the post. /\
         //GetWithComments -- Needs a new model /\
         //Search - no need for exact search, like other repositories - I'm not going to enforce a name restriction on posts, in case a pack board has a post /\
-                    //called "Do sheep taste good?" and someone makes a post named "Do sheep taste good?" in a public board. However, it will only return results
-                    //from public boards. Search functionality for pack posts can be handled by react on the front end using state and array method filtering in js/jsx.
+        //called "Do sheep taste good?" and someone makes a post named "Do sheep taste good?" in a public board. However, it will only return results
+        //from public boards. Search functionality for pack posts can be handled by react on the front end using state and array method filtering in js/jsx.
         //GetByBoardId -- List<Post> -- may not be necessary, since boards already get boards with posts on them. If necessary, I'll add this later.
 
         public List<Post> GetAllPosts()
         {
             List<Post> posts = new();
 
-            using(var connection = Connection)
+            using (var connection = Connection)
             {
                 connection.Open();
 
-                using(var cmd = connection.CreateCommand())
+                using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Select po.Id as postId, po.Title, po.Content, po.UserId as PostUserId, po.BoardId as PostBoardId, po.CreatedOn as PostDate,
                                                 pu.Id as userId, pu.DisplayName, pu.DateCreated as userDate, pu.IsBanned, pu.ProfilePictureUrl, pu.PackId,
@@ -43,11 +43,11 @@ namespace Howler.Repositories
                                                 join [User] pu on po.UserId = pu.Id
                                                 join Board bo on po.BoardId = bo.Id";
 
-                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            if(reader.GetBoolean(reader.GetOrdinal("IsPackBoard")) != true)//makes sure the pack board field isnt true, and then adds the post. doesnt add posts on pack board
+                            if (reader.GetBoolean(reader.GetOrdinal("IsPackBoard")) != true)//makes sure the pack board field isnt true, and then adds the post. doesnt add posts on pack board
                             {
                                 posts.Add(PostBuilder(reader));
                             }
@@ -62,11 +62,11 @@ namespace Howler.Repositories
         {
             Post post = null;
 
-            using(var connection = Connection)
+            using (var connection = Connection)
             {
                 connection.Open();
 
-                using(var cmd = connection.CreateCommand())
+                using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Select po.Id as postId, po.Title, po.Content, po.UserId as PostUserId, po.BoardId as PostBoardId, po.CreatedOn as PostDate,
                                                 pu.Id as userId, pu.DisplayName, pu.DateCreated as userDate, pu.IsBanned, pu.ProfilePictureUrl, pu.PackId
@@ -76,7 +76,7 @@ namespace Howler.Repositories
                                                 where po.Id = @id";
                     cmd.Parameters.AddWithValue("@id", id);
 
-                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         if (reader.Read())
                         {
@@ -91,11 +91,11 @@ namespace Howler.Repositories
 
         public void Add(Post post)
         {
-            using(var connection = Connection)
+            using (var connection = Connection)
             {
                 connection.Open();
 
-                using(var cmd = connection.CreateCommand())
+                using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Insert into Post (Title, Content, UserId, BoardId, CreatedOn)
                                         OUTPUT INSERTED ID
@@ -114,11 +114,11 @@ namespace Howler.Repositories
 
         public void Update(Post post)
         {
-            using(var connection = Connection)
+            using (var connection = Connection)
             {
                 connection.Open();
 
-                using(var cmd = connection.CreateCommand())
+                using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"UPDATE Post
                                         Set Title = @title,
@@ -136,11 +136,11 @@ namespace Howler.Repositories
 
         public void Delete(int id)
         {
-            using(var connection = Connection)
+            using (var connection = Connection)
             {
                 connection.Open();
 
-                using(var cmd = connection.CreateCommand())
+                using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Delete from Post where Id = @id";
                     cmd.Parameters.AddWithValue("@id", id);
@@ -154,11 +154,11 @@ namespace Howler.Repositories
         {
             PostWithComments post = null;
 
-            using(var connection = Connection)
+            using (var connection = Connection)
             {
                 connection.Open();
 
-                using(var cmd = connection.CreateCommand())
+                using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Select po.Id as postId, po.Title, po.Content, po.UserId as PostUserId, po.BoardId as PostBoardId, po.CreatedOn as PostDate,
                                                 pu.Id as userId, pu.DisplayName, pu.DateCreated as userDate, pu.IsBanned, pu.ProfilePictureUrl, pu.PackId,
@@ -176,11 +176,11 @@ namespace Howler.Repositories
 
                     cmd.Parameters.AddWithValue("@id", id);
 
-                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            if(post == null)
+                            if (post == null)
                             {
                                 Post noCommentPost = PostBuilder(reader);
                                 List<Comment> comments = new List<Comment>();
@@ -243,11 +243,11 @@ namespace Howler.Repositories
         {
             List<Post> posts = new();
 
-            using(var connection = Connection)
+            using (var connection = Connection)
             {
                 connection.Open();
 
-                using(var cmd = connection.CreateCommand())
+                using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Select po.Id as postId, po.Title, po.Content, po.UserId as PostUserId, po.BoardId as PostBoardId, po.CreatedOn as PostDate,
                                                 pu.Id as userId, pu.DisplayName, pu.DateCreated as userDate, pu.IsBanned, pu.ProfilePictureUrl, pu.PackId,
