@@ -7,19 +7,19 @@ using System.Security.Claims;
 
 namespace Howler.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     [Authorize]
     public class PostsController : ControllerBase
     {
-        private readonly IBoardRepository _boardController;
+        private readonly IBoardRepository _boardRepository;
         private readonly IPostRepository _postRepository;
         private readonly IUserRepository _userRepository;
         private readonly IPackRepository _packRepository;
 
-        public PostsController(IPostRepository postRepository, IBoardRepository boardController, IUserRepository userRepository, IPackRepository packRepository)
+        public PostsController(IPostRepository postRepository, IBoardRepository boardRepository, IUserRepository userRepository, IPackRepository packRepository)
         {
-            _boardController = boardController;
+            _boardRepository = boardRepository;
             _postRepository = postRepository;
             _userRepository = userRepository;
             _packRepository = packRepository;
@@ -30,7 +30,13 @@ namespace Howler.Controllers
         {
             User sender = GetCurrentUser();
             Post post = _postRepository.GetById(id);
-            Board board = _boardController.GetById(post.BoardId);
+
+            if(post == null)
+            {
+                return NotFound();
+            }
+            Board board = _boardRepository.GetById(post.BoardId);
+
             if (board.IsPackBoard == true)
             {
                 if (sender.PackId == null)
@@ -48,6 +54,38 @@ namespace Howler.Controllers
             }
             return Ok(post);
         }
+
+        [HttpGet("{id}")]
+        public IActionResult GetWithComments(int id)
+        {
+            PostWithComments post = _postRepository.GetWithComments(id);
+            User sender = GetCurrentUser();
+
+            if(post == null)
+            {
+                return NotFound();
+            }
+
+            Board board = _boardRepository.GetById(post.BoardId);
+            if(board.IsPackBoard)
+            {
+                if (sender.PackId == null)
+                {
+                    return Forbid();
+                }
+
+                Pack senderPack = _packRepository.GetById((int)sender.PackId);
+                if(senderPack.PrimaryBoardId == board.Id)
+                {
+                    return Ok(post);
+                }
+
+                return Forbid();
+            }
+
+            return Ok(post);
+        }
+
 
         private User GetCurrentUser()
         {

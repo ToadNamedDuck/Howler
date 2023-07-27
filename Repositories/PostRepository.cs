@@ -224,11 +224,11 @@ namespace Howler.Repositories
 
                             if (reader.IsDBNull(reader.GetOrdinal("commentPackId")))
                             {
-                                comment.User.ProfilePictureUrl = null;
+                                comment.User.PackId = null;
                             }
                             else
                             {
-                                comment.User.ProfilePictureUrl = reader.GetString(reader.GetOrdinal("commentPackId"));
+                                comment.User.PackId = reader.GetInt32(reader.GetOrdinal("commentPackId"));
                             }
 
                             post.Comments.Add(comment);
