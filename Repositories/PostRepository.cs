@@ -98,7 +98,7 @@ namespace Howler.Repositories
                 using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Insert into Post (Title, Content, UserId, BoardId, CreatedOn)
-                                        OUTPUT INSERTED ID
+                                        OUTPUT INSERTED.ID
                                         Values (@title, @content, @userId, @boardId, @createdOn)";
 
                     cmd.Parameters.AddWithValue("@title", post.Title);

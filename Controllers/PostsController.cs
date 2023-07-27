@@ -3,6 +3,7 @@ using Howler.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Security.Claims;
 
 namespace Howler.Controllers
@@ -86,7 +87,43 @@ namespace Howler.Controllers
             return Ok(post);
         }
 
+        [HttpGet]
+        public IActionResult Search(string q)
+        {
+            List<Post> posts = _postRepository.Search(q);
+            return Ok(posts);
+        }
 
+        [HttpPost]
+        public IActionResult Post(Post post)
+        {
+            User sender = GetCurrentUser();
+            if(post.UserId != sender.Id)
+            {
+                return BadRequest();
+            }
+            Board postBoard = _boardRepository.GetById(post.BoardId);
+            if(postBoard == null)
+            {
+                return BadRequest();
+            }
+            if (postBoard.IsPackBoard)
+            {
+                if(sender.PackId == null)
+                {
+                    return Forbid();
+                }
+                Pack senderPack = _packRepository.GetById((int)sender.PackId);
+                if(senderPack.PrimaryBoardId != postBoard.Id)
+                {
+                    return Forbid();
+                }
+                _postRepository.Add(post);
+                return CreatedAtAction(nameof(GetById), new { id = post.Id }, post);
+            }
+            _postRepository.Add(post);
+            return CreatedAtAction(nameof(GetById), new { id = post.Id }, post);
+        }
         private User GetCurrentUser()
         {
             var firebaseUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
