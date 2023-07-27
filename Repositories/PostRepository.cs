@@ -12,9 +12,10 @@ namespace Howler.Repositories
         {
         }
 
-        //GetAllPosts -- mostly for the sake of having it. I can't imagine it would be necessary for anything at all. Doesn't return posts from a pack board.
+        //GetAllPosts -- mostly for the sake of having it. I can't imagine it would be necessary for anything at all. Doesn't return posts from a pack board. /\
         //GetById -- Front end should only really use GetWithComments endpoint. This is mostly for Getting the board Id off the post for authorization purposes. 
-                    //Also for I guess the CreatedAtAction. Will add it to the api for sake of completeness
+                    //Also for I guess the CreatedAtAction. Will add it to the api for sake of completeness. The controller needs to use the board id to determine
+                    //whether or not the post is on a pack board to determine if the user should be able to access the post or not. This only returns the post. It doesn't care.
         //Add
         //Update -- should only be editable by the person who wrote the post.
         //Delete -- Posts should be deletable by board owners and also by the member who wrote the post.
@@ -55,6 +56,37 @@ namespace Howler.Repositories
                 }
             }
             return posts;
+        }
+
+        public Post GetById(int id)
+        {
+            Post post = null;
+
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Select po.Id as postId, po.Title, po.Content, po.UserId as PostUserId, po.BoardId as PostBoardId, po.CreatedOn as PostDate,
+                                                pu.Id as userId, pu.DisplayName, pu.DateCreated as userDate, pu.IsBanned, pu.ProfilePictureUrl, pu.PackId
+
+                                                from Post po
+                                                join [User] pu on po.UserId = pu.Id
+                                                where po.Id = @id";
+                    cmd.Parameters.AddWithValue("@id", id);
+
+                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            post = PostBuilder(reader);
+                        }
+                    }
+                }
+            }
+
+            return post;
         }
 
         private Post PostBuilder(SqlDataReader reader)
