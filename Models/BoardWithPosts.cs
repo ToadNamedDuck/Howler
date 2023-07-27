@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Howler.Models
 {
-    public class Board
+    public class BoardWithPosts
     {
         public int Id { get; set; }
         [Required]
@@ -18,5 +19,6 @@ namespace Howler.Models
         public int BoardOwnerId { get; set; }
         public bool IsPackBoard { get; set; }
         public BarrenUser BoardOwner { get; set; }
+        public List<Post> Posts { get; set; } 
     }
 }

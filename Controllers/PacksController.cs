@@ -1,5 +1,6 @@
 ﻿using Howler.Models;
 using Howler.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,10 +18,12 @@ namespace Howler.Controllers
     {
         private readonly IPackRepository _packRepository;
         private readonly IUserRepository _userRepository;
-        public PacksController(IPackRepository packRepository, IUserRepository userRepository)
+        private readonly IBoardRepository _boardRepository;
+        public PacksController(IPackRepository packRepository, IUserRepository userRepository, IBoardRepository boardRepository)
         {
             _packRepository = packRepository;
             _userRepository = userRepository;
+            _boardRepository = boardRepository;
         }
 
         [HttpGet]
@@ -62,9 +65,52 @@ namespace Howler.Controllers
             {
                 return BadRequest();
             }
+            _boardRepository.GeneratePackBoard(pack);
             _packRepository.Add(pack);
             return CreatedAtAction(nameof(GetById), new {id = pack.Id}, pack);
             
+        }
+
+        //I never made update yesterday (Today is 7/26/23) ! Oops!
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, Pack pack)
+        {
+            User sender = GetCurrentUser();
+            User updatedPackLeader = _userRepository.GetById(pack.PackLeaderId); 
+            Pack packBeingUpdated = _packRepository.GetById(id);
+            Pack packWithSameName = _packRepository.ExactSearch(pack.Name);
+            if(packBeingUpdated != null)
+            {
+
+                if(packBeingUpdated.PackLeaderId != sender.Id) 
+                {
+                    return Forbid();
+                }
+                if(packBeingUpdated.PrimaryBoardId != pack.PrimaryBoardId)
+                {
+                    return BadRequest();
+                }
+                if (sender.PackId != packBeingUpdated.Id || sender.PackId != pack.Id || pack.Id != packBeingUpdated.Id || updatedPackLeader == null)
+                {
+                    return BadRequest();
+                }
+                if(updatedPackLeader.PackId != pack.Id || updatedPackLeader.PackId != packBeingUpdated.Id)
+                {
+                    ObjectResult response = new ObjectResult(new { title = "Can't Assign Pack to Non-Member", status = 470, message = $"{updatedPackLeader.DisplayName} is not a member of this pack, and cannot be set as the leader!" });
+                    response.StatusCode = 470;
+                    return response;
+                }
+                if(packWithSameName != null && packWithSameName.Id != pack.Id)
+                {
+                    ObjectResult response = new ObjectResult(new { title = "Already Exists", status = 420, message = $"A pack named '{pack.Name}' already exists in the database" });
+                    response.StatusCode = 420;
+                    return response;
+                }
+
+                _packRepository.Edit(pack);
+                return NoContent();
+            }
+            return NotFound();
         }
 
         [HttpDelete("{id}")]
@@ -72,12 +118,20 @@ namespace Howler.Controllers
         {
             User currentUser = GetCurrentUser();
             Pack packToDelete = _packRepository.GetById(id);
-            if(packToDelete.PackLeaderId != currentUser.Id)
+            if(packToDelete != null)
             {
-                return Forbid();
+                if(packToDelete.PackLeaderId != currentUser.Id)
+                {
+                    return Forbid();
+                }
+                if (packToDelete.PrimaryBoardId != null)
+                {
+                    _boardRepository.Delete((int)packToDelete.PrimaryBoardId);
+                }
+                _packRepository.Delete(id);
+                return NoContent();
             }
-            _packRepository.Delete(id);
-            return NoContent();
+            return NotFound();
         }
 
         [HttpGet]
