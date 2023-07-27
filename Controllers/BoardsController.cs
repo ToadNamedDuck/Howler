@@ -137,6 +137,10 @@ namespace Howler.Controllers
             }
 
             BoardWithPosts board = _boardRepository.GetWithPosts(id);
+            if(board == null)
+            {
+                return NotFound();
+            }
 
             if (board.IsPackBoard)
             {
