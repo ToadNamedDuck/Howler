@@ -90,6 +90,22 @@ namespace Howler.Repositories
             }
         }
 
+        public void Delete(int id)
+        {
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Delete from Comment where Id = @id";
+                    cmd.Parameters.AddWithValue("@id", id);
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
         private Comment CommentBuilder(SqlDataReader reader)
         {
             Comment comment = new()
