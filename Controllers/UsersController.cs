@@ -72,7 +72,7 @@ namespace Howler.Controllers
         [HttpGet]
         public IActionResult GetByPackId(int packId)
         {
-            List<User> users = _userRepository.GetByPackId(packId);
+            List<BarrenUser> users = _userRepository.GetByPackId(packId);
             return Ok(users);
         }
 
