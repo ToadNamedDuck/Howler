@@ -19,16 +19,18 @@ namespace Howler.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
+        private readonly IPackRepository _packRepository;
 
-        public UsersController(IUserRepository userRepository)
+        public UsersController(IUserRepository userRepository, IPackRepository packRepository)
         {
             _userRepository = userRepository;
+            _packRepository = packRepository;
         }
 
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            User user = _userRepository.GetById(id);
+            BarrenUser user = _userRepository.GetById(id);
             if(user == null)
             {
                 return NotFound();
@@ -39,7 +41,7 @@ namespace Howler.Controllers
         [HttpGet("{email}")]
         public IActionResult GetByEmail(string email)
         {
-            User user = _userRepository.GetByEmail(email);
+            BarrenUser user = _userRepository.GetByEmail(email);
             if(user == null)
             {
                 return NotFound();
@@ -72,13 +74,20 @@ namespace Howler.Controllers
         [HttpGet]
         public IActionResult GetByPackId(int packId)
         {
-            List<User> users = _userRepository.GetByPackId(packId);
+            List<BarrenUser> users = _userRepository.GetByPackId(packId);
             return Ok(users);
         }
 
         [HttpPost]
         public IActionResult Post(User user)
         {
+            BarrenUser userWithSameEmail = _userRepository.GetByEmail(user.Email);
+            if (userWithSameEmail != null)
+            {
+                ObjectResult response = new ObjectResult(new { title = "Already Exists", status = 420, message = $"A user with email '{user.Email}' already exists in the database" });
+                response.StatusCode = 420;
+                return response;
+            }
             user.DateCreated = DateTime.Now;
             _userRepository.Add(user);
             return CreatedAtAction(
@@ -88,12 +97,20 @@ namespace Howler.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, User user)
+        public IActionResult Update(int id, BarrenUser user)
         {
             User currentUser = GetCurrentUser();
             if(id != user.Id)
             {
                 return BadRequest();
+            }
+            if(user.PackId != null)
+            {
+                Pack userUpdatedPack = _packRepository.GetById((int)user.PackId);
+                if(userUpdatedPack == null)
+                {
+                    return BadRequest();
+                }
             }
             if(id != currentUser.Id)
             {

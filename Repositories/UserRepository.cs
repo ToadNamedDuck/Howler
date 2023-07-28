@@ -26,9 +26,9 @@ namespace Howler.Repositories
         //GetByPackId - return List<User>
         //GetByIdWithComments ** stretch, add panel to profile
         //GetByIdWithPostsAndComments ** stretch, add panel to profile
-        public User GetById(int id)
+        public BarrenUser GetById(int id)
         {
-            User user = null;
+            BarrenUser user = null;
             using (var connection = Connection)
             {
                 connection.Open();
@@ -44,7 +44,7 @@ namespace Howler.Repositories
                     {
                         if (reader.Read())
                         {
-                            user = UserBuilder(reader);
+                            user = BarrenUserBuilder(reader);
                         }
                     }
                 }
@@ -52,9 +52,9 @@ namespace Howler.Repositories
             return user;
         }
 
-        public User GetByEmail(string email)
+        public BarrenUser GetByEmail(string email)
         {
-            User user = null;
+            BarrenUser user = null;
             using (var connection = Connection)
             {
                 connection.Open();
@@ -70,7 +70,7 @@ namespace Howler.Repositories
                     {
                         if(reader.Read())
                         {
-                            user = UserBuilder(reader);
+                            user = BarrenUserBuilder(reader);
                         }
                     }
                 }
@@ -109,7 +109,7 @@ namespace Howler.Repositories
             }
         }
 
-        public void Update(User user)
+        public void Update(BarrenUser user)
         {
             using(var connection = Connection)
             {
@@ -176,10 +176,12 @@ namespace Howler.Repositories
                 using(var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Select u.Id as UserId, u.DisplayName, u.Email, u.ProfilePictureUrl, u.DateCreated as UserDate, u.FirebaseId, u.IsBanned, u.PackId,
-                                        p.Id as PostId, p.Title, p.Content, p.CreatedOn, p.UserId, p.BoardId
+                                        p.Id as PostId, p.Title, p.Content, p.CreatedOn, p.UserId, p.BoardId,
+                                        bo.IsPackBoard
                                         from [User] u
                                         left join Post p on p.UserId = u.Id
-                                        where u.Id = @userId";
+                                        join Board bo on p.BoardId = bo.Id
+                                        where u.Id = @userId AND bo.IsPackBoard = 0";
 
                     cmd.Parameters.AddWithValue("@userId", id);
 
@@ -193,9 +195,7 @@ namespace Howler.Repositories
                                     {
                                         Id = reader.GetInt32(reader.GetOrdinal("UserId")),
                                         DisplayName = reader.GetString(reader.GetOrdinal("DisplayName")),
-                                        Email = reader.GetString(reader.GetOrdinal("Email")),
                                         DateCreated = reader.GetDateTime(reader.GetOrdinal("UserDate")),
-                                        FirebaseId = reader.GetString(reader.GetOrdinal("FirebaseId")),
                                         IsBanned = reader.GetBoolean(reader.GetOrdinal("IsBanned"))
                                     };
                                     if (!reader.IsDBNull(reader.GetOrdinal("PackId")))
@@ -234,9 +234,9 @@ namespace Howler.Repositories
             return user;
         }
 
-        public List<User> GetByPackId (int packId)
+        public List<BarrenUser> GetByPackId (int packId)
         {
-            List<User> users = new List<User>();
+            List<BarrenUser> users = new List<BarrenUser>();
 
             using(var connection = Connection)
             {
@@ -251,7 +251,7 @@ namespace Howler.Repositories
                     {
                         while (reader.Read())
                         {
-                            User user = UserBuilder(reader);
+                            BarrenUser user = BarrenUserBuilder(reader);
                             users.Add(user);
                         }
                     }
@@ -281,6 +281,36 @@ namespace Howler.Repositories
             }
 
             if (!reader.IsDBNull(reader.GetOrdinal("ProfilePictureUrl"))){
+                user.ProfilePictureUrl = reader.GetString(reader.GetOrdinal("ProfilePictureUrl"));
+            }
+            else
+            {
+                user.ProfilePictureUrl = null;
+            }
+
+            return user;
+        }
+
+        private BarrenUser BarrenUserBuilder(SqlDataReader reader) //Wanting to test to see how much I can make a barren user. Ideally, the only one that needs to be a real user is firebaseId.
+        {
+            BarrenUser user = new()
+            {
+                Id = reader.GetInt32(reader.GetOrdinal("UserId")),
+                DisplayName = reader.GetString(reader.GetOrdinal("DisplayName")),
+                DateCreated = reader.GetDateTime(reader.GetOrdinal("DateCreated")),
+                IsBanned = reader.GetBoolean(reader.GetOrdinal("IsBanned"))
+            };
+            if (!reader.IsDBNull(reader.GetOrdinal("PackId")))
+            {
+                user.PackId = reader.GetInt32(reader.GetOrdinal("PackId"));
+            }
+            else
+            {
+                user.PackId = null;
+            }
+
+            if (!reader.IsDBNull(reader.GetOrdinal("ProfilePictureUrl")))
+            {
                 user.ProfilePictureUrl = reader.GetString(reader.GetOrdinal("ProfilePictureUrl"));
             }
             else

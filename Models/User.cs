@@ -7,7 +7,7 @@ namespace Howler.Models
     {
         public int Id { get; set; }
         [Required]
-        [StringLength(30)]
+        [StringLength(30, MinimumLength = 3)]
         public string DisplayName { get; set; }
         [Required]
         [StringLength(128)]

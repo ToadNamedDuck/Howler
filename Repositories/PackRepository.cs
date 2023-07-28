@@ -36,7 +36,8 @@ namespace Howler.Repositories
                                         u.Id as UserId, u.DisplayName, u.ProfilePictureUrl, u.DateCreated, u.PackId as userPackId, u.IsBanned
                                         from Pack p
                                         join [User] u
-                                        on u.Id = p.PackLeaderId";
+                                        on u.Id = p.PackLeaderId
+                                        Order by p.Name asc";
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
@@ -228,7 +229,8 @@ namespace Howler.Repositories
                                         from Pack p
                                         join [User] u
                                         on u.Id = p.PackLeaderId
-                                        where [Name] LIKE @q or Description LIKE @q";
+                                        where [Name] LIKE @q or Description LIKE @q
+                                        Order by p.Name asc";
                     cmd.Parameters.AddWithValue("@q", $"%{q}%");
 
                     using(SqlDataReader reader = cmd.ExecuteReader())

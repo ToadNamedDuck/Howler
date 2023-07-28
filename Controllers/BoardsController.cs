@@ -65,6 +65,10 @@ namespace Howler.Controllers
             board.IsPackBoard = false;
             Board boardWithSameName = _boardRepository.ExactSearch(board.Name);
             User sender = GetCurrentUser();
+            if (string.IsNullOrWhiteSpace(board.Name))
+            {
+                return BadRequest();
+            }
             if (boardWithSameName != null)
             {
                 ObjectResult response = new ObjectResult(new { title = "Already Exists", status = 420, message = $"A board named '{boardWithSameName.Name}' already exists in the database" });
@@ -84,7 +88,11 @@ namespace Howler.Controllers
         {
             User sender = GetCurrentUser();
             Board boardToEdit = _boardRepository.GetById(id);
-            if(boardToEdit == null)
+            if (string.IsNullOrWhiteSpace(board.Name))
+            {
+                return BadRequest();
+            }
+            if (boardToEdit == null)
             {
                 return NotFound();
             }
