@@ -109,7 +109,7 @@ namespace Howler.Repositories
             }
         }
 
-        public void Update(User user)
+        public void Update(BarrenUser user)
         {
             using(var connection = Connection)
             {
