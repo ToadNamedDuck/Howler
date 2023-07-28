@@ -61,7 +61,7 @@ namespace Howler.Controllers
                 response.StatusCode = 469;
                 return response;
             }
-            if(pack.PackLeaderId != currentUser.Id)
+            if(pack.PackLeaderId != currentUser.Id || string.IsNullOrWhiteSpace(pack.Name))
             {
                 return BadRequest();
             }
@@ -79,6 +79,10 @@ namespace Howler.Controllers
             BarrenUser updatedPackLeader = _userRepository.GetById(pack.PackLeaderId); 
             Pack packBeingUpdated = _packRepository.GetById(id);
             Pack packWithSameName = _packRepository.ExactSearch(pack.Name);
+            if (string.IsNullOrWhiteSpace(pack.Name))
+            {
+                return BadRequest();
+            }
             if(packBeingUpdated != null)
             {
 
