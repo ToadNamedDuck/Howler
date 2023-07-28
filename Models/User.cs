@@ -13,8 +13,9 @@ namespace Howler.Models
         [StringLength(128)]
         public string Email { get; set; }
         [StringLength(255)]
+        #nullable enable
         public string? ProfilePictureUrl { get; set; }
-
+        #nullable disable
         public DateTime DateCreated { get; set; }
         [Required]
         [StringLength(28, MinimumLength = 28)]
