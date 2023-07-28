@@ -3,6 +3,7 @@ using Howler.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 
@@ -32,7 +33,7 @@ namespace Howler.Controllers
             User sender = GetCurrentUser();
             Post post = _postRepository.GetById(id);
 
-            if(post == null)
+            if (post == null)
             {
                 return NotFound();
             }
@@ -47,7 +48,7 @@ namespace Howler.Controllers
 
                 Pack senderPack = _packRepository.GetById((int)sender.PackId);
 
-                if(senderPack.PrimaryBoardId == board.Id)
+                if (senderPack.PrimaryBoardId == board.Id)
                 {
                     return Ok(post);
                 }
@@ -62,13 +63,13 @@ namespace Howler.Controllers
             PostWithComments post = _postRepository.GetWithComments(id);
             User sender = GetCurrentUser();
 
-            if(post == null)
+            if (post == null)
             {
                 return NotFound();
             }
 
             Board board = _boardRepository.GetById(post.BoardId);
-            if(board.IsPackBoard)
+            if (board.IsPackBoard)
             {
                 if (sender.PackId == null)
                 {
@@ -76,7 +77,7 @@ namespace Howler.Controllers
                 }
 
                 Pack senderPack = _packRepository.GetById((int)sender.PackId);
-                if(senderPack.PrimaryBoardId == board.Id)
+                if (senderPack.PrimaryBoardId == board.Id)
                 {
                     return Ok(post);
                 }
@@ -98,32 +99,88 @@ namespace Howler.Controllers
         public IActionResult Post(Post post)
         {
             User sender = GetCurrentUser();
-            if(post.UserId != sender.Id)
+            if (post.UserId != sender.Id)
             {
                 return BadRequest();
             }
             Board postBoard = _boardRepository.GetById(post.BoardId);
-            if(postBoard == null)
+            if (postBoard == null)
             {
                 return BadRequest();
             }
             if (postBoard.IsPackBoard)
             {
-                if(sender.PackId == null)
+                if (sender.PackId == null)
                 {
                     return Forbid();
                 }
                 Pack senderPack = _packRepository.GetById((int)sender.PackId);
-                if(senderPack.PrimaryBoardId != postBoard.Id)
+                if (senderPack.PrimaryBoardId != postBoard.Id)
                 {
                     return Forbid();
                 }
+                post.CreatedOn = DateTime.Now;
                 _postRepository.Add(post);
                 return CreatedAtAction(nameof(GetById), new { id = post.Id }, post);
             }
+            post.CreatedOn = DateTime.Now;
             _postRepository.Add(post);
             return CreatedAtAction(nameof(GetById), new { id = post.Id }, post);
         }
+
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, Post post)
+        {
+            User sender = GetCurrentUser();
+            Post postToUpdate = _postRepository.GetById(post.Id);
+            if (postToUpdate == null)
+            {
+                return NotFound();
+            }
+            if (id != post.Id || post.UserId != postToUpdate.UserId || post.UserId != sender.Id || postToUpdate.UserId != sender.Id || post.BoardId != postToUpdate.BoardId || post.CreatedOn != postToUpdate.CreatedOn)
+            {
+                return BadRequest();
+            }
+
+            Board postBoard = _boardRepository.GetById(post.BoardId);
+            if (postBoard.IsPackBoard == true)
+            {
+                if (sender.PackId == null)
+                {
+                    return Forbid();
+                }
+                Pack senderPack = _packRepository.GetById((int)sender.PackId);
+                if (senderPack.PrimaryBoardId == postBoard.Id)
+                {
+                    _postRepository.Update(post);
+                    return NoContent();
+                }
+                return Forbid();
+            }
+            _postRepository.Update(post);
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            Post post = _postRepository.GetById(id);
+            if(post == null)
+            {
+                return NotFound();
+            }
+
+            User sender = GetCurrentUser();
+            Board board = _boardRepository.GetById(post.BoardId);
+
+            if (post.UserId == sender.Id || board.BoardOwnerId == sender.Id)
+            {
+                _postRepository.Delete(post.Id);
+                return NoContent();
+            }
+            return Forbid();
+        }
+
         private User GetCurrentUser()
         {
             var firebaseUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
