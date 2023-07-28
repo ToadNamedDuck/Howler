@@ -14,8 +14,8 @@ namespace Howler.Repositories
 
         //Honestly, I think since posts have an option to pull a post with comments, I think all this needs are:
         //GetById /\
-        //Add
-        //Update
+        //Add /\
+        //Update /\
         //Delete
         //Search
 
@@ -66,6 +66,26 @@ namespace Howler.Repositories
                     cmd.Parameters.AddWithValue("@co", comment.CreatedOn);
 
                     comment.Id = (int)cmd.ExecuteScalar();
+                }
+            }
+        }
+
+        public void Update(Comment comment)
+        {
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = @"Update Comment
+                                        SET Content = @content
+                                        Where Id = @id";
+                    cmd.Parameters.AddWithValue("@content", comment.Content);
+                    cmd.Parameters.AddWithValue("@id", comment.Id);
+
+
+                    cmd.ExecuteNonQuery();
                 }
             }
         }
