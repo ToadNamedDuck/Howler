@@ -89,9 +89,9 @@ namespace Howler.Controllers
         }
 
         [HttpGet]
-        public IActionResult Search(string q)
+        public IActionResult Search(string q, bool latestFirst)
         {
-            List<Post> posts = _postRepository.Search(q);
+            List<Post> posts = _postRepository.Search(q, latestFirst);
             return Ok(posts);
         }
 
@@ -179,6 +179,12 @@ namespace Howler.Controllers
                 return NoContent();
             }
             return Forbid();
+        }
+
+        [HttpGet]
+        public IActionResult GetAllPosts(bool latestFirst)
+        {
+            return Ok(_postRepository.GetAllPosts(latestFirst));
         }
 
         private User GetCurrentUser()

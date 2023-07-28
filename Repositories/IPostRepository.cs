@@ -7,10 +7,10 @@ namespace Howler.Repositories
     {
         void Add(Post post);
         void Delete(int id);
-        List<Post> GetAllPosts();
+        List<Post> GetAllPosts(bool latestFirst);
         Post GetById(int id);
         PostWithComments GetWithComments(int id);
-        List<Post> Search(string q);
+        List<Post> Search(string q, bool latestFirst);
         void Update(Post post);
     }
 }

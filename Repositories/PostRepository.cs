@@ -25,7 +25,7 @@ namespace Howler.Repositories
         //from public boards. Search functionality for pack posts can be handled by react on the front end using state and array method filtering in js/jsx.
         //GetByBoardId -- List<Post> -- may not be necessary, since boards already get boards with posts on them. If necessary, I'll add this later.
 
-        public List<Post> GetAllPosts()
+        public List<Post> GetAllPosts(bool latestFirst)
         {
             List<Post> posts = new();
 
@@ -42,6 +42,11 @@ namespace Howler.Repositories
                                                 from Post po
                                                 join [User] pu on po.UserId = pu.Id
                                                 join Board bo on po.BoardId = bo.Id";
+
+                    if(latestFirst == true)
+                    {
+                        cmd.CommandText += " Order By po.CreatedOn Desc";
+                    }
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
@@ -239,7 +244,7 @@ namespace Howler.Repositories
             return post;
         }
 
-        public List<Post> Search(string q)//doesn't return posts from pack boards. :)
+        public List<Post> Search(string q, bool latestFirst)//doesn't return posts from pack boards. :)
         {
             List<Post> posts = new();
 
@@ -258,6 +263,11 @@ namespace Howler.Repositories
                                                 join Board bo on po.BoardId = bo.Id
                                                 where Title like @q AND bo.IsPackBoard = 0
                                                 OR Content like @q AND bo.IsPackBoard = 0";
+
+                    if(latestFirst == true)
+                    {
+                        cmd.CommandText += " Order By po.CreatedOn Desc";
+                    }
 
                     cmd.Parameters.AddWithValue("@q", $"%{q}%");
 
