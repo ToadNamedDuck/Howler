@@ -76,7 +76,7 @@ namespace Howler.Controllers
         public IActionResult Update(int id, Pack pack)
         {
             User sender = GetCurrentUser();
-            User updatedPackLeader = _userRepository.GetById(pack.PackLeaderId); 
+            BarrenUser updatedPackLeader = _userRepository.GetById(pack.PackLeaderId); 
             Pack packBeingUpdated = _packRepository.GetById(id);
             Pack packWithSameName = _packRepository.ExactSearch(pack.Name);
             if(packBeingUpdated != null)

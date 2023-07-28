@@ -6,7 +6,7 @@ namespace Howler.Repositories
 {
     public interface IUserRepository
     {
-        public User GetById(int id);
+        public BarrenUser GetById(int id);
         public BarrenUser GetByEmail(string email);
         public void Add(User user);
         public void Update(BarrenUser user);

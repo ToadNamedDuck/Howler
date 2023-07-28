@@ -30,7 +30,7 @@ namespace Howler.Controllers
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            User user = _userRepository.GetById(id);
+            BarrenUser user = _userRepository.GetById(id);
             if(user == null)
             {
                 return NotFound();
@@ -81,6 +81,13 @@ namespace Howler.Controllers
         [HttpPost]
         public IActionResult Post(User user)
         {
+            BarrenUser userWithSameEmail = _userRepository.GetByEmail(user.Email);
+            if (userWithSameEmail != null)
+            {
+                ObjectResult response = new ObjectResult(new { title = "Already Exists", status = 420, message = $"A user with email '{user.Email}' already exists in the database" });
+                response.StatusCode = 420;
+                return response;
+            }
             user.DateCreated = DateTime.Now;
             _userRepository.Add(user);
             return CreatedAtAction(

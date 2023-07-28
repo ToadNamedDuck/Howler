@@ -26,9 +26,9 @@ namespace Howler.Repositories
         //GetByPackId - return List<User>
         //GetByIdWithComments ** stretch, add panel to profile
         //GetByIdWithPostsAndComments ** stretch, add panel to profile
-        public User GetById(int id)
+        public BarrenUser GetById(int id)
         {
-            User user = null;
+            BarrenUser user = null;
             using (var connection = Connection)
             {
                 connection.Open();
@@ -44,7 +44,7 @@ namespace Howler.Repositories
                     {
                         if (reader.Read())
                         {
-                            user = UserBuilder(reader);
+                            user = BarrenUserBuilder(reader);
                         }
                     }
                 }
