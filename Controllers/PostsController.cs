@@ -99,7 +99,7 @@ namespace Howler.Controllers
         public IActionResult Post(Post post)
         {
             User sender = GetCurrentUser();
-            if (post.UserId != sender.Id)
+            if (post.UserId != sender.Id || String.IsNullOrWhiteSpace(post.Title))
             {
                 return BadRequest();
             }
@@ -133,6 +133,10 @@ namespace Howler.Controllers
         {
             User sender = GetCurrentUser();
             Post postToUpdate = _postRepository.GetById(post.Id);
+            if (String.IsNullOrWhiteSpace(post.Title))
+            {
+                return BadRequest();
+            }
             if (postToUpdate == null)
             {
                 return NotFound();
