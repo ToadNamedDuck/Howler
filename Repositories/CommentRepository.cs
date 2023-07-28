@@ -2,6 +2,7 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Streamish.Repositories;
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace Howler.Repositories
@@ -16,8 +17,8 @@ namespace Howler.Repositories
         //GetById /\
         //Add /\
         //Update /\
-        //Delete
-        //Search
+        //Delete /\
+        //Search /\
 
         public Comment GetById(int id) //do not make an endpoint for this, use only for validation
         {
@@ -104,6 +105,45 @@ namespace Howler.Repositories
                     cmd.ExecuteNonQuery();
                 }
             }
+        }
+
+        public List<Comment> Search(string q, bool latestFirst)
+        {
+            List<Comment> comments = new();
+            using(var connection = Connection)
+            {
+                connection.Open();
+
+                using(var cmd = connection.CreateCommand())
+                {
+                    //We don't want any comments that are on posts that are on pack boards to be searchable, period
+                    //so we should join those (in a simple way) to make sure the board isn't a pack board.
+                    cmd.CommandText = @"Select co.Id as CommentId, co.UserId as commentUserId, co.PostId, co.Content, co.CreatedOn,
+                                                    u.Id as cUserId, u.DisplayName, u.DateCreated, u.IsBanned, u.ProfilePictureUrl, u.PackId,
+                                                    p.BoardId, b.IsPackBoard
+
+                                                    from Comment co
+                                                    join [User] u on co.UserId = u.Id
+                                                    join Post p on p.Id = co.PostId
+                                                    join Board b on p.BoardId = b.Id
+                                                    Where co.Content Like @q And IsPackBoard = 0";
+
+                    if(latestFirst == true)
+                    {
+                        cmd.CommandText += " Order by co.CreatedOn DESC";
+                    }
+
+                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            Comment comment = CommentBuilder(reader);
+                            comments.Add(comment);
+                        }
+                    }
+                }
+            }
+            return comments;
         }
 
         private Comment CommentBuilder(SqlDataReader reader)
