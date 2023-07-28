@@ -39,7 +39,8 @@ namespace Howler.Repositories
                                         from Board b
                                         Join [User] u
                                         On b.BoardOwnerId = u.Id
-                                        Where IsPackBoard = 0";
+                                        Where IsPackBoard = 0
+                                        Order by b.[Name] asc";
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -358,7 +359,9 @@ namespace Howler.Repositories
                                         from Board b
                                         Join [User] u
                                         On b.BoardOwnerId = u.Id
-                                        Where b.Name LIKE @q OR b.Topic LIKE @q OR b.Description LIKE @q";
+                                        Where b.Name LIKE @q OR b.Topic LIKE @q OR b.Description LIKE @q
+                                        Order by b.[Name] asc";
+
 
                     cmd.Parameters.AddWithValue("@q", $"%{q}%");
 
