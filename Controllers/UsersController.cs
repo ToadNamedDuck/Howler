@@ -19,10 +19,12 @@ namespace Howler.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
+        private readonly IPackRepository _packRepository;
 
-        public UsersController(IUserRepository userRepository)
+        public UsersController(IUserRepository userRepository, IPackRepository packRepository)
         {
             _userRepository = userRepository;
+            _packRepository = packRepository;
         }
 
         [HttpGet("{id}")]
@@ -39,7 +41,7 @@ namespace Howler.Controllers
         [HttpGet("{email}")]
         public IActionResult GetByEmail(string email)
         {
-            User user = _userRepository.GetByEmail(email);
+            BarrenUser user = _userRepository.GetByEmail(email);
             if(user == null)
             {
                 return NotFound();
@@ -94,6 +96,14 @@ namespace Howler.Controllers
             if(id != user.Id)
             {
                 return BadRequest();
+            }
+            if(user.PackId != null)
+            {
+                Pack userUpdatedPack = _packRepository.GetById((int)user.PackId);
+                if(userUpdatedPack == null)
+                {
+                    return BadRequest();
+                }
             }
             if(id != currentUser.Id)
             {

@@ -52,9 +52,9 @@ namespace Howler.Repositories
             return user;
         }
 
-        public User GetByEmail(string email)
+        public BarrenUser GetByEmail(string email)
         {
-            User user = null;
+            BarrenUser user = null;
             using (var connection = Connection)
             {
                 connection.Open();
@@ -70,7 +70,7 @@ namespace Howler.Repositories
                     {
                         if(reader.Read())
                         {
-                            user = UserBuilder(reader);
+                            user = BarrenUserBuilder(reader);
                         }
                     }
                 }
