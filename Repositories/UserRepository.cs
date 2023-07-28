@@ -176,10 +176,12 @@ namespace Howler.Repositories
                 using(var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Select u.Id as UserId, u.DisplayName, u.Email, u.ProfilePictureUrl, u.DateCreated as UserDate, u.FirebaseId, u.IsBanned, u.PackId,
-                                        p.Id as PostId, p.Title, p.Content, p.CreatedOn, p.UserId, p.BoardId
+                                        p.Id as PostId, p.Title, p.Content, p.CreatedOn, p.UserId, p.BoardId,
+                                        bo.IsPackBoard
                                         from [User] u
                                         left join Post p on p.UserId = u.Id
-                                        where u.Id = @userId";
+                                        join Board bo on p.BoardId = bo.Id
+                                        where u.Id = @userId AND bo.IsPackBoard = 0";
 
                     cmd.Parameters.AddWithValue("@userId", id);
 
