@@ -195,9 +195,7 @@ namespace Howler.Repositories
                                     {
                                         Id = reader.GetInt32(reader.GetOrdinal("UserId")),
                                         DisplayName = reader.GetString(reader.GetOrdinal("DisplayName")),
-                                        Email = reader.GetString(reader.GetOrdinal("Email")),
                                         DateCreated = reader.GetDateTime(reader.GetOrdinal("UserDate")),
-                                        FirebaseId = reader.GetString(reader.GetOrdinal("FirebaseId")),
                                         IsBanned = reader.GetBoolean(reader.GetOrdinal("IsBanned"))
                                     };
                                     if (!reader.IsDBNull(reader.GetOrdinal("PackId")))
@@ -236,7 +234,7 @@ namespace Howler.Repositories
             return user;
         }
 
-        public List<BarrenUser> GetByPackId (int packId)//
+        public List<BarrenUser> GetByPackId (int packId)
         {
             List<BarrenUser> users = new List<BarrenUser>();
 
