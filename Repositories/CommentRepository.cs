@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace Howler.Repositories
 {
-    public class CommentRepository : BaseRepository
+    public class CommentRepository : BaseRepository, ICommentRepository
     {
         public CommentRepository(IConfiguration configuration) : base(configuration)
         {
@@ -23,7 +23,7 @@ namespace Howler.Repositories
         public Comment GetById(int id) //do not make an endpoint for this, use only for validation
         {
             Comment comment = null;
-            using(var connection = Connection)
+            using (var connection = Connection)
             {
                 connection.Open();
 
@@ -37,7 +37,7 @@ namespace Howler.Repositories
 
                     command.Parameters.AddWithValue("@id", id);
 
-                    using(SqlDataReader reader = command.ExecuteReader())
+                    using (SqlDataReader reader = command.ExecuteReader())
                     {
                         if (reader.Read())
                         {
@@ -51,11 +51,11 @@ namespace Howler.Repositories
 
         public void Add(Comment comment)
         {
-            using(var connection = Connection)
+            using (var connection = Connection)
             {
                 connection.Open();
 
-                using(var cmd = connection.CreateCommand())
+                using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Insert into Comment (UserId, PostId, Content, CreatedOn)
                                         OUTPUT INSERTED.ID
@@ -73,11 +73,11 @@ namespace Howler.Repositories
 
         public void Update(Comment comment)
         {
-            using(var connection = Connection)
+            using (var connection = Connection)
             {
                 connection.Open();
 
-                using(var cmd = connection.CreateCommand())
+                using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Update Comment
                                         SET Content = @content
@@ -93,11 +93,11 @@ namespace Howler.Repositories
 
         public void Delete(int id)
         {
-            using(var connection = Connection)
+            using (var connection = Connection)
             {
                 connection.Open();
 
-                using(var cmd = connection.CreateCommand())
+                using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = @"Delete from Comment where Id = @id";
                     cmd.Parameters.AddWithValue("@id", id);
@@ -110,11 +110,11 @@ namespace Howler.Repositories
         public List<Comment> Search(string q, bool latestFirst)
         {
             List<Comment> comments = new();
-            using(var connection = Connection)
+            using (var connection = Connection)
             {
                 connection.Open();
 
-                using(var cmd = connection.CreateCommand())
+                using (var cmd = connection.CreateCommand())
                 {
                     //We don't want any comments that are on posts that are on pack boards to be searchable, period
                     //so we should join those (in a simple way) to make sure the board isn't a pack board.
@@ -128,12 +128,14 @@ namespace Howler.Repositories
                                                     join Board b on p.BoardId = b.Id
                                                     Where co.Content Like @q And IsPackBoard = 0";
 
-                    if(latestFirst == true)
+                    if (latestFirst == true)
                     {
                         cmd.CommandText += " Order by co.CreatedOn DESC";
                     }
 
-                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    cmd.Parameters.AddWithValue("@q", $"%{q}%");
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
