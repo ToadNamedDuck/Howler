@@ -71,6 +71,48 @@ namespace Howler.Controllers
             _commentRepository.Add(comment);
             return StatusCode(201, comment);
         }
+
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, Comment comment)
+        {
+            if (String.IsNullOrWhiteSpace(comment.Content))
+            {
+                return BadRequest();
+            }
+            User sender = GetCurrentUser();
+
+            Comment originalComment = _commentRepository.GetById(id);
+            if(originalComment == null)
+            {
+                return NotFound();
+            }
+
+            Post commentedOn = _postRepository.GetById(comment.PostId);
+            if (commentedOn == null || comment.UserId != sender.Id || comment.PostId != commentedOn.Id || comment.Id != id || originalComment.UserId != sender.Id)
+            {
+                return BadRequest();
+            }
+
+            Board postBoard = _boardRepository.GetById(commentedOn.BoardId);
+            if (postBoard.IsPackBoard)
+            {
+                if (sender.PackId == null)
+                {
+                    return Unauthorized();
+                }
+                Pack senderPack = _packRepository.GetById((int)sender.PackId);
+
+                if (senderPack.PrimaryBoardId == postBoard.Id)
+                {
+                    _commentRepository.Update(comment);
+                    return NoContent();
+                }
+                return Unauthorized();
+            }
+            _commentRepository.Update(comment);
+            return NoContent();
+        }
+
         private User GetCurrentUser()
         {
             var firebaseUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
