@@ -113,6 +113,27 @@ namespace Howler.Controllers
             return NoContent();
         }
 
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            User sender = GetCurrentUser();
+            Comment comment = _commentRepository.GetById(id);
+            if(comment == null)
+            {
+                return NotFound();
+            }
+
+            Post post = _postRepository.GetById(comment.PostId);
+            Board board = _boardRepository.GetById(post.BoardId);
+
+            if(sender.Id == board.BoardOwnerId || sender.Id == comment.UserId)
+            {
+                _commentRepository.Delete(id);
+                return NoContent();
+            }
+            return Unauthorized();
+        }
+
         private User GetCurrentUser()
         {
             var firebaseUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
