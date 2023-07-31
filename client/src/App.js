@@ -1,25 +1,52 @@
-import logo from './logo.svg';
 import './App.css';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
+import { getUserDetails, onLoginStatusChange } from './Modules/authManager';
+import { Spinner } from 'reactstrap';
+import ApplicationViews from './Components/ApplicationViews';
+import firebase from 'firebase';
+import Header from './Components/Header';
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(null);
+  const [loggedInUser, setLoggedInUser] = useState(null);
+
+  useEffect(() => {
+    onLoginStatusChange(setIsLoggedIn);
+  },[])
+
+  useEffect(() => {
+    if(isLoggedIn){
+      getUserDetails(firebase.auth().currentUser.uid)
+      .then(fullUserObject => {
+        const userStripped = {
+          id: fullUserObject.id,
+          displayName: fullUserObject.displayName,
+          profilePictureUrl: fullUserObject.profilePictureUrl,
+          isBanned: fullUserObject.isBanned,
+          packId: fullUserObject.packId
+        };
+        setLoggedInUser(userStripped);
+      })
+    }
+    else{
+      setLoggedInUser(null);
+    }
+  }, [isLoggedIn])
+
+
+  if(isLoggedIn == null){
+    return <Spinner className="app-spinner dark"/>
+  }
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+  <Router>
+      <Header isLoggedIn={isLoggedIn}/>
+      <ApplicationViews isLoggedIn={isLoggedIn} loggedInUser={loggedInUser}/>
+  </Router>
   );
+
 }
+
 
 export default App;
