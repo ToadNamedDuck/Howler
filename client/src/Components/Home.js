@@ -1,4 +1,5 @@
 import { Spinner } from "reactstrap"
+import UserPartial from "./UserComponents/UserPartial"
 
 export default function Home({isLoggedIn, loggedInUser}){
     if(!isLoggedIn){
@@ -10,6 +11,7 @@ export default function Home({isLoggedIn, loggedInUser}){
     if(isLoggedIn){
         return <>
             <h2>Hello {loggedInUser.displayName}!</h2>
+            <UserPartial userId={loggedInUser.id}/>
             <p>a</p>
             <p>a</p>
             <p>a</p>

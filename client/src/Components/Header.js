@@ -6,11 +6,12 @@ import {
   CardImg,
   Nav,
   NavItem,
-  NavLink
+  NavLink,
+  Spinner
 } from 'reactstrap';
 import { logout } from '../Modules/authManager';
 
-export default function Header({ isLoggedIn }) {
+export default function Header({ isLoggedIn, loggedInUser }) {
 
   return (
     <div className='fixed-top'>
@@ -22,6 +23,9 @@ export default function Header({ isLoggedIn }) {
                     {isLoggedIn &&
                     <>
                         <NavLink tag={RRNavLink} to="/">Home</NavLink>
+                        <NavLink tag={RRNavLink} to="/packs">View Packs</NavLink>
+                        <NavLink tag={RRNavLink} to="/boards">View Boards</NavLink>
+                        {loggedInUser === null ? "" : <NavLink tag={RRNavLink} to={`/profile/${loggedInUser.id}`}>My Profile</NavLink>}
                     </>
                     }
                     {isLoggedIn &&
@@ -38,7 +42,7 @@ export default function Header({ isLoggedIn }) {
                         <NavLink tag={RRNavLink} to="/login">Login</NavLink>
                         </NavItem>
                         <NavItem>
-                        <NavLink style={{color: '#d4c81d'}} tag={RRNavLink} to="/register">Register</NavLink>
+                        <NavLink tag={RRNavLink} to="/register">Register</NavLink>
                         </NavItem>
                     </>
                     }

@@ -42,10 +42,10 @@ p {
   opacity: 0;
 }
 
-.nav-link:hover{
+.nav-link{
   color: #d4c81d
 }
 
-:root {
-  --primary-color: green;
+html, body, .card{
+  background-color: gray;
 }
