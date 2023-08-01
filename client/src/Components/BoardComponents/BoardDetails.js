@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { Spinner } from "reactstrap";
 import { getWithPosts } from "../../Modules/boardManager";
 import { Board } from "./Board";
+import Post from "../PostComponents/Post";
 
 export default function BoardDetails(){
     const [board, setBoard] = useState(null)
@@ -18,11 +19,11 @@ export default function BoardDetails(){
 
     //make a post element, please
     return <>
-        <Board board={board}/>
+        <Board board={board} onDetails={true}/>
         {
             board.posts ? <>
                 {board.posts.map(post => {
-                    return <p key={`${post.id}`}>{post.title}</p>
+                    return <Post key={`${post.id}`} post={post}/>
                 })}
             </>
             :

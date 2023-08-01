@@ -244,7 +244,7 @@ namespace Howler.Repositories
                                         from Board b
                                         join [User] u on b.BoardOwnerId = u.Id
                                         left join Post p on p.BoardId = b.Id
-                                        join [User] pu on p.UserId = pu.Id
+                                        left join [User] pu on p.UserId = pu.Id
 
                                         Where b.Id = @id";
 
@@ -269,43 +269,47 @@ namespace Howler.Repositories
                                 };
                             }
 
-                            Post post = new()//After board is initialized, we add posts to the board's post list. This runs every cycle.
+                            if (!reader.IsDBNull(reader.GetOrdinal("pId")))
                             {
-                                Id = reader.GetInt32(reader.GetOrdinal("pId")),
-                                Title = reader.GetString(reader.GetOrdinal("Title")),
-                                Content = reader.GetString(reader.GetOrdinal("Content")),
-                                UserId = reader.GetInt32(reader.GetOrdinal("PostUserId")),
-                                BoardId = reader.GetInt32(reader.GetOrdinal("BoardId")),
-                                CreatedOn = reader.GetDateTime(reader.GetOrdinal("CreatedOn")),
-                                User = new()
+
+                                Post post = new()//After board is initialized, we add posts to the board's post list. This runs every cycle.
                                 {
-                                    Id = reader.GetInt32(reader.GetOrdinal("PostUserId")),
-                                    DisplayName = reader.GetString(reader.GetOrdinal("PostUserDisplayName")),
-                                    DateCreated = reader.GetDateTime(reader.GetOrdinal("PostUserDate")),
-                                    IsBanned = reader.GetBoolean(reader.GetOrdinal("PostUserIsBanned"))
+                                    Id = reader.GetInt32(reader.GetOrdinal("pId")),
+                                    Title = reader.GetString(reader.GetOrdinal("Title")),
+                                    Content = reader.GetString(reader.GetOrdinal("Content")),
+                                    UserId = reader.GetInt32(reader.GetOrdinal("PostUserId")),
+                                    BoardId = reader.GetInt32(reader.GetOrdinal("BoardId")),
+                                    CreatedOn = reader.GetDateTime(reader.GetOrdinal("CreatedOn")),
+                                    User = new()
+                                    {
+                                        Id = reader.GetInt32(reader.GetOrdinal("PostUserId")),
+                                        DisplayName = reader.GetString(reader.GetOrdinal("PostUserDisplayName")),
+                                        DateCreated = reader.GetDateTime(reader.GetOrdinal("PostUserDate")),
+                                        IsBanned = reader.GetBoolean(reader.GetOrdinal("PostUserIsBanned"))
 
+                                    }
+                                };
+
+                                if (reader.IsDBNull(reader.GetOrdinal("PostUserPfp")))
+                                {
+                                    post.User.ProfilePictureUrl = null;
                                 }
-                            };
+                                else
+                                {
+                                    post.User.ProfilePictureUrl = reader.GetString(reader.GetOrdinal("PostUserPfp"));
+                                }
 
-                            if (reader.IsDBNull(reader.GetOrdinal("PostUserPfp")))
-                            {
-                                post.User.ProfilePictureUrl = null;
-                            }
-                            else
-                            {
-                                post.User.ProfilePictureUrl = reader.GetString(reader.GetOrdinal("PostUserPfp"));
-                            }
+                                if (reader.IsDBNull(reader.GetOrdinal("PostUserPackId")))
+                                {
+                                    post.User.PackId = null;
+                                }
+                                else
+                                {
+                                    post.User.PackId = reader.GetInt32(reader.GetOrdinal("PostUserPackId"));
+                                }
 
-                            if (reader.IsDBNull(reader.GetOrdinal("PostUserPackId")))
-                            {
-                                post.User.PackId = null;
+                                board.Posts.Add(post);
                             }
-                            else
-                            {
-                                post.User.PackId = reader.GetInt32(reader.GetOrdinal("PostUserPackId"));
-                            }
-
-                            board.Posts.Add(post);
                         }
                     }
                 }
