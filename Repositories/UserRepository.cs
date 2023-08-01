@@ -180,8 +180,8 @@ namespace Howler.Repositories
                                         bo.IsPackBoard
                                         from [User] u
                                         left join Post p on p.UserId = u.Id
-                                        join Board bo on p.BoardId = bo.Id
-                                        where u.Id = @userId AND bo.IsPackBoard = 0";
+                                        left join Board bo on p.BoardId = bo.Id
+                                        where u.Id = @userId AND bo.IsPackBoard = 0 OR u.Id = @userId AND bo.IsPackBoard IS NULL";
 
                     cmd.Parameters.AddWithValue("@userId", id);
 
@@ -216,6 +216,8 @@ namespace Howler.Repositories
                                         user.ProfilePictureUrl = null;
                                     }
                                 };
+                            if (!reader.IsDBNull(reader.GetOrdinal("IsPackBoard")))
+                            {
                                 Post post = new()
                                 {
                                     Id = reader.GetInt32(reader.GetOrdinal("PostId")),
@@ -227,6 +229,7 @@ namespace Howler.Repositories
                                 };
                                 user.Posts.Add(post);
                             }
+                        }
                     }
                 }
             }

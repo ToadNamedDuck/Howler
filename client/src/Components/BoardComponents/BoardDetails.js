@@ -43,7 +43,7 @@ export default function BoardDetails(){
                 })}
             </>
             :
-            ""
+            <h3>Board has no posts currently.</h3>
         }
     </>
 }
