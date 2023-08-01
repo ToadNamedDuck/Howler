@@ -37,13 +37,13 @@ export default function BoardDetails(){
     return <>
         <Board board={board} onDetails={true}/>
         {
-            board.posts ? <>
+            board.posts.length > 0 ? <>
                 {board.posts.map(post => {
                     return <Post key={`${post.id}`} post={post}/>
                 })}
             </>
             :
-            <h3>Board has no posts currently.</h3>
+            <h3>Board has no posts currently, feel free to create one!</h3>
         }
     </>
 }

@@ -8,7 +8,6 @@ export function Board({board, onDetails}){
     }
 
     return <Card>
-        {board.boardOwner ? <UserPartial userInfo={board.boardOwner}/> : ""}
         <CardHeader>
             {!onDetails ? <Link to={`${board.id}`}><h2>{board.name}</h2></Link> : <h2>{board.name}</h2>}
         </CardHeader>
@@ -16,5 +15,6 @@ export function Board({board, onDetails}){
             <p>{board.topic}</p>
             <p>{board.description}</p>
         </CardBody>
+        {board.boardOwner ? <UserPartial userInfo={board.boardOwner}/> : ""}
     </Card>
 }

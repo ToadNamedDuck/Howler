@@ -16,7 +16,7 @@ export default function Header({ isLoggedIn, loggedInUser }) {
   return (
     <div className='fixed-top'>
         <Card>
-            <CardImg top src="logo192.png" height="100px" width="auto"/>
+            <CardImg top src="/logo192.png" height="100px" width="auto"/>
             <CardBody>
                 <Nav className="mr-auto justify-content-around" >
                     { /* When isLoggedIn === true, we will render the Home link */}

@@ -22,3 +22,15 @@ export function getWithPosts(id){
         })
     })
 }
+
+export function getById(id){
+    return getToken().then(token => {
+        return fetch(`${_apiUrl}/GetById/${id}`,
+        {
+            method: "GET",
+            headers: {
+                authorization: `Bearer ${token}`
+            }
+        })
+    }).then(resp => resp.json());
+}

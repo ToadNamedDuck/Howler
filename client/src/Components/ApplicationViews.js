@@ -14,8 +14,8 @@ export default function ApplicationViews({isLoggedIn, loggedInUser}){
                 <Route path="/login" element={ isLoggedIn ? <Navigate to="/"/> : <Login/>}/>
                 <Route path="/register" element={ isLoggedIn ? <Navigate to="/"/> : <Register/>}/>
                 <Route path="/boards" element={ isLoggedIn ? <Boards/> : <Navigate to="/login"/>}/>
-                <Route path="/boards/:id" element={ isLoggedIn ? <BoardDetails/> : <Navigate to="/login"/>}/>
-                <Route path="/posts/:id" element={ isLoggedIn ? <PostDetails/> : <Navigate to="/login"/>}/>
+                <Route path="/boards/:id" element={ isLoggedIn ? <BoardDetails loggedInUser={loggedInUser}/> : <Navigate to="/login"/>}/>
+                <Route path="/boards/:id/posts/:postId" element={ isLoggedIn ? <PostDetails loggedInUser={loggedInUser}/> : <Navigate to="/login"/>}/>
                 <Route path="*" element={ isLoggedIn ? <p>Nothing here yet...</p> : <Login/>}/>
             </Routes>
     </main>
