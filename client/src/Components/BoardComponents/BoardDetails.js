@@ -8,13 +8,28 @@ import Post from "../PostComponents/Post";
 export default function BoardDetails(){
     const [board, setBoard] = useState(null)
     const {id} = useParams();
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        getWithPosts(id).then(boardWithPosts => {setBoard(boardWithPosts)})
+        getWithPosts(id).then(resp => {
+            if(resp.ok){
+                setError(null)
+                resp.json()
+                .then(boardWithPosts => {setBoard(boardWithPosts)})
+            }
+            else{
+                setError(true);
+                setBoard({});
+            }
+        })
     },[id])
 
     if(board == null){
         return <Spinner className="app-spinner dark"/>
+    }
+
+    if(error){
+        return <h1>Either you aren't allowed to view this page, or it doesn't exist! Maybe try again later, or join the correct Pack!</h1>
     }
 
     //make a post element, please

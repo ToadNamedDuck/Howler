@@ -12,6 +12,7 @@ export default function PostDetails(){
     useEffect(() => {
         GetWithComments(id).then(resp => {
             if(resp.ok){
+                setError(null)
                 resp.json()
                 .then(post => setPost(post))
             }

@@ -19,6 +19,6 @@ export function getWithPosts(id){
             headers: {
                 authorization: `Bearer ${token}`
             }
-        }).then(resp => resp.json())
+        })
     })
 }
