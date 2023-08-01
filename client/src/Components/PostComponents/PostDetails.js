@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { GetWithComments } from "../../Modules/postManager";
-import { Card, CardBody, CardFooter, CardHeader, Spinner } from "reactstrap";
+import { Button, Card, CardBody, CardFooter, CardHeader, Spinner } from "reactstrap";
 import Post from "./Post";
 import Comment from "../CommentComponents/Comment";
 import CommentForm from "../CommentComponents/CommentForm";
 import { getById } from "../../Modules/boardManager";
+import { BsArrowLeft } from "react-icons/bs";
 
 export default function PostDetails({loggedInUser}){
     const {id, postId} = useParams();
     const [post, setPost] = useState(null);
     const [error, setError] = useState(null);
     const [board, setBoard] = useState({id: id})
-
 
     const retrievePost = () => {
         GetWithComments(postId).then(resp => {
@@ -28,6 +28,8 @@ export default function PostDetails({loggedInUser}){
         });
     }
 
+    const navigate = useNavigate();
+    
     useEffect(() => {
         getById(id).then(board => setBoard(board))
     },[])
@@ -56,6 +58,10 @@ export default function PostDetails({loggedInUser}){
 
     //add the add comment form to page
     return <>
+        <Button color="warning" onClick={e => {
+            e.preventDefault();
+            navigate(`/boards/${id}`)
+        } }><BsArrowLeft fontSize={"24px"}/>Go Back</Button>
         <Post post={post} onDetails={true}/>
         <Card>
             <CardHeader><h2>Comments</h2></CardHeader>

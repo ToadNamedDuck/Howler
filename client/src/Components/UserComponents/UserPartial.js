@@ -35,11 +35,11 @@ export default function UserPartial({userId, userInfo}){
         return <Spinner className="app-spinner dark"/>
     }
 
-    return <div className="userPartial display-flex column justify-center">
+    return <div className="userPartial flex-column" style={ {display: "inline-block", width: "25%"} }>
                 {user!== null && user.isBanned === true ? <h6>BANNED</h6> : ""}
                 {user.profilePictureUrl !== null && user.profilePictureUrl !== undefined && user.profilePictureUrl.includes("wikia.nocookie") ? <img src={user.profilePictureUrl} crossOrigin="anonymous" referrerPolicy="no-referrer" alt={user.displayName} height="75px" width="75px"/> 
                 : <img src={user.profilePictureUrl} width="75px" height="75px" alt={user.displayName}/>}
                 <h4><Link to={`/users/${user.id}`}>{user.displayName}</Link></h4>
-                {userDate !== null ? <p>Joined: {userDate}</p> : ""}
+                {userDate !== null ? <h6>Joined: {userDate}</h6> : ""}
             </div>
 }

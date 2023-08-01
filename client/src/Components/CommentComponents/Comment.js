@@ -2,6 +2,9 @@ import { Button, Card, CardBody, CardFooter, CardHeader, Spinner } from "reactst
 import UserPartial from "../UserComponents/UserPartial";
 import { deleteComment, editComment } from "../../Modules/commentManager";
 import { useEffect, useState } from "react";
+import { BsFillTrashFill } from "react-icons/bs";
+import { BsPencil } from "react-icons/bs"
+
 
 export default function Comment({ comment, board, loggedInUser, retrievePost }) {
     const commentDate = new Date(comment.createdOn).toLocaleDateString()
@@ -22,9 +25,9 @@ export default function Comment({ comment, board, loggedInUser, retrievePost }) 
             return;
         }
         try {
-            editComment(comment.id, editedComment)
+            editComment(comment.id, editedComment);
+            retrievePost();
             setEdit(null);
-            retrievePost()
         }
         catch (ex) {
             alert(ex.message)
@@ -35,22 +38,8 @@ export default function Comment({ comment, board, loggedInUser, retrievePost }) 
         return <Spinner className="app-spinner dark" />
     }
 
-    return <Card>
-        <CardBody>
-            {
-                editState === null ?
-                    <h5>{comment.content}</h5>
-                    :
-                    <>
-                        <input type="text" value={editText} onChange={e => { setEditText(e.target.value) }} style={{ width: "100%", height: "100%" }} />
-                        <Button color="info" onClick={e => { editButtonClickHandler(e) }}>Submit Edit</Button>
-                        <Button color="danger" onClick={() => { setEdit(null) }}>Cancel</Button>
-                    </>
-            }
-        </CardBody>
-        <p>Comment made on: {commentDate}</p>
-        <UserPartial userInfo={comment.user} />
-        <CardFooter>
+    return <Card className="flex-row-reverse">
+        <CardFooter className="d-flex flex-column-reverse" style={ {width: "7%"} }>
 
             {
                 loggedInUser !== null && loggedInUser.id === board.boardOwner.id || loggedInUser.id === comment.user.id ?
@@ -58,7 +47,7 @@ export default function Comment({ comment, board, loggedInUser, retrievePost }) 
                         e.preventDefault();
                         deleteComment(comment.id);
                         retrievePost();
-                    }}>Delete</Button>
+                    }}><BsFillTrashFill fontSize={"24px"}/></Button>
                     : ""
             }
 
@@ -67,12 +56,24 @@ export default function Comment({ comment, board, loggedInUser, retrievePost }) 
                     <Button color="warning" onClick={e => {
                         e.preventDefault();
                         setEdit(true);
-                    }}>Edit</Button>
+                    }}><BsPencil fontSize={"24px"}/></Button>
                     :
                     ""
             }
-
-
         </CardFooter>
+        <CardBody style={ {width: "68%"} }>
+            {
+                editState === null ?
+                    <h5>{comment.content}</h5>
+                    :
+                    <>
+                        <input type="text" value={editText} onChange={e => { setEditText(e.target.value) }} style={{ width: "100%", height: "50%" }} />
+                        <Button color="info" onClick={e => { editButtonClickHandler(e) }}>Submit Edit</Button>
+                        <Button color="danger" onClick={() => { setEdit(null) }}>Cancel</Button>
+                    </>
+            }
+            <h6>Comment made on: {commentDate}</h6>
+        </CardBody>
+        <UserPartial userInfo={comment.user} />
     </Card>
 }
