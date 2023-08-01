@@ -37,9 +37,6 @@ export default function CommentForm({PostId, loggedInUser, retrievePost}){
         </CardBody>
         <CardFooter>
             <Button color="warning" type="button" onClick={(e) => {buttonClickHandler(e)} }>Send Comment</Button>
-            {
-
-            }
         </CardFooter>
     </Card>
 }

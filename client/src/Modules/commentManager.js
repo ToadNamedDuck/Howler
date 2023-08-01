@@ -26,3 +26,20 @@ export function deleteComment(commentId){
         })
     })
 }
+
+export function editComment(id, comment){
+    return getToken().then(token => {
+        return fetch(`${_apiUrl}/Update/${id}`, {
+            method: "PUT",
+            headers: {
+                authorization: `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(comment)
+        })
+    }).then(resp => {
+        if(!resp.ok){
+            resp.json()
+        }
+    })
+}
