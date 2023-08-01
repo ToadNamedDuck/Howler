@@ -18,6 +18,7 @@ export default function BoardDetails(){
     }
 
     //make a post element, please
+    //Add button needs added pls
     return <>
         <Board board={board} onDetails={true}/>
         {

@@ -5,6 +5,7 @@ import Register from "./Register";
 import Header from "./Header";
 import Boards from "./BoardComponents/Boards";
 import BoardDetails from "./BoardComponents/BoardDetails";
+import PostDetails from "./PostComponents/PostDetails";
 
 export default function ApplicationViews({isLoggedIn, loggedInUser}){
     return <main style={{marginTop: 175}}>
@@ -14,6 +15,7 @@ export default function ApplicationViews({isLoggedIn, loggedInUser}){
                 <Route path="/register" element={ isLoggedIn ? <Navigate to="/"/> : <Register/>}/>
                 <Route path="/boards" element={ isLoggedIn ? <Boards/> : <Navigate to="/login"/>}/>
                 <Route path="/boards/:id" element={ isLoggedIn ? <BoardDetails/> : <Navigate to="/login"/>}/>
+                <Route path="/posts/:id" element={ isLoggedIn ? <PostDetails/> : <Navigate to="/login"/>}/>
                 <Route path="*" element={ isLoggedIn ? <p>Nothing here yet...</p> : <Login/>}/>
             </Routes>
     </main>
