@@ -63,3 +63,16 @@ export function editBoard(id, board){
         }
     })
 }
+
+export function addBoard(board){
+    return getToken().then(token => {
+        return fetch(`${_apiUrl}/Post`, {
+            method: "POST",
+            headers: {
+                authorization: `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(board)
+        })
+    }).then(resp => resp.json())
+}
