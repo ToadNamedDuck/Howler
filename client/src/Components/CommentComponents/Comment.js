@@ -45,8 +45,7 @@ export default function Comment({ comment, board, loggedInUser, retrievePost }) 
                 loggedInUser !== null && loggedInUser.id === board.boardOwner.id || loggedInUser.id === comment.user.id ?
                     <Button color="danger" onClick={e => {
                         e.preventDefault();
-                        deleteComment(comment.id);
-                        retrievePost();
+                        deleteComment(comment.id).then(() => {retrievePost()})
                     }}><BsFillTrashFill fontSize={"24px"}/></Button>
                     : ""
             }

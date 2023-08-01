@@ -5,7 +5,7 @@ import { getWithPosts } from "../../Modules/boardManager";
 import { Board } from "./Board";
 import Post from "../PostComponents/Post";
 
-export default function BoardDetails(){
+export default function BoardDetails({loggedInUser}){
     const [board, setBoard] = useState(null)
     const {id} = useParams();
     const [error, setError] = useState(null);
@@ -35,7 +35,7 @@ export default function BoardDetails(){
     //make a post element, please
     //Add button needs added pls
     return <>
-        <Board board={board} onDetails={true}/>
+        <Board board={board} onDetails={true} loggedInUser={loggedInUser}/>
         {
             board.posts.length > 0 ? <>
                 {board.posts.map(post => {

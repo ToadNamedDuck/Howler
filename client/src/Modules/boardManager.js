@@ -33,4 +33,33 @@ export function getById(id){
             }
         })
     }).then(resp => resp.json());
+
+}
+
+export function deleteBoard(id){
+    return getToken().then(token => {
+        return fetch(`${_apiUrl}/Delete/${id}`, {
+            method: "DELETE",
+            headers: {
+                authorization: `Bearer ${token}`
+            }
+        })
+    })
+}
+
+export function editBoard(id, board){
+    return getToken().then(token => {
+        return fetch(`${_apiUrl}/Update/${id}`, {
+            method: "PUT",
+            headers: {
+                authorization: `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(board)
+        })
+    }).then(resp => {
+        if(!resp.ok){
+            resp.json()
+        }
+    })
 }
