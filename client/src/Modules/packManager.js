@@ -36,7 +36,7 @@ export function addPack(pack){
                 authorization: `Bearer ${token}`,
                 "Content-Type": "application/json"
             },
-            body: JSON.parse(pack)
+            body: JSON.stringify(pack)
         }).then(resp => resp.json())
     })
 }
@@ -57,7 +57,8 @@ export function editPack(id, pack){
         return fetch(`${_apiUrl}/Update/${id}`, {
             method: "PUT",
             headers: {
-                authorization: `Bearer ${token}`
+                authorization: `Bearer ${token}`,
+                "Content-Type": "application/json"
             },
             body: JSON.stringify(pack)
         })

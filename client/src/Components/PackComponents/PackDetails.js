@@ -1,7 +1,7 @@
-import { Card, Spinner } from "reactstrap";
+import { Card, CardBody, Spinner } from "reactstrap";
 import { Pack } from "./Pack";
 import PackUserList from "./PackUserList";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getPackById } from "../../Modules/packManager";
 
@@ -24,5 +24,6 @@ export default function PackDetails({loggedInUser, userUpdater}){
     return <Card>
         <Pack pack={pack} loggedInUser={loggedInUser} onDetails={true} userUpdater={userUpdater} retrievePack={retrievePack}/>
         <PackUserList pack={pack}/>
+        <h4>For Members Only Board, Click <Link to={`/boards/${pack.primaryBoardId}`}>Here</Link></h4>
     </Card>
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { GetWithComments } from "../../Modules/postManager";
-import { Button, Card, CardBody, CardFooter, CardHeader, Spinner } from "reactstrap";
+import { Button, Card, CardBody, CardHeader, Spinner } from "reactstrap";
 import Post from "./Post";
 import Comment from "../CommentComponents/Comment";
 import CommentForm from "../CommentComponents/CommentForm";
