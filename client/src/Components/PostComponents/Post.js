@@ -56,8 +56,8 @@ export default function Post({ post, onDetails, board, loggedInUser, retrievePos
                             : onDetails && editState ?
                                 <>
                                     <input type="text" value={editContent} onChange={(e) => { setContent(e.target.value) }} style={{ width: "100%" }} />
+                                    <Button color="info" onClick={e => { savePostEditClick(e) }}>Save Edit</Button>
                                     <Button color="danger" onClick={() => { setEdit(false) }}>Cancel Edit</Button>
-                                    <Button color="warning" onClick={e => { savePostEditClick(e) }}>Save Edit</Button>
                                 </>
                                 : post.content
             }
