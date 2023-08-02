@@ -11,13 +11,13 @@ export default function Boards({loggedInUser}){
     const [newTopic, setNewTopic] = useState("");
     const [newDescription, setNewDesc] = useState("");
 
-    useEffect(() => {
-        getBoards()
-    },[])
-
     const getBoards = () => {
         getAllBoards().then(boards => setAllBoards(boards))
     }
+
+    useEffect(() => {
+        getBoards()
+    },[])
 
     if(allBoards === null){
         return <Spinner className="app-spinner dark"/>
@@ -54,7 +54,7 @@ export default function Boards({loggedInUser}){
                 <input type="text" placeholder="New board topic..." onChange={(e) => setNewTopic(e.target.value)}/>
                 <input type="text" placeholder="New board description..." onChange={(e) => setNewDesc(e.target.value)}/>
                 <CardFooter>
-                    <Button color="danger" onClick={e => {setNewBoard(false)} }>Cancel</Button>
+                    <Button color="danger" onClick={() => {setNewBoard(false)} }>Cancel</Button>
                     <Button color="warning" onClick={e => {newBoardSubmitClickHandler(e)} }>Create New Board</Button>
                 </CardFooter>
             </Card>

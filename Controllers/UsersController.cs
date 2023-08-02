@@ -100,6 +100,18 @@ namespace Howler.Controllers
         public IActionResult Update(int id, BarrenUser user)
         {
             User currentUser = GetCurrentUser();
+            Pack senderPack = null;
+            BarrenUser uneditedUser = _userRepository.GetById(id);
+
+            if(uneditedUser == null)
+            {
+                return NotFound();
+            }
+
+            if(currentUser.PackId != null)
+            {
+                senderPack = _packRepository.GetById((int)currentUser.PackId);
+            }
             if(id != user.Id)
             {
                 return BadRequest();
@@ -114,7 +126,28 @@ namespace Howler.Controllers
             }
             if(id != currentUser.Id)
             {
-                return Unauthorized();
+                //if the edited user's id is not the currentUserId, we want to check if they're the edited user's pack leader (for kicking them out of a pack)
+                if(senderPack == null)
+                {
+                    return Unauthorized();
+                }
+                else
+                {
+                    if(senderPack.PackLeaderId == currentUser.Id && uneditedUser.PackId == senderPack.Id)//check that the sender is the leader of their pack, and that the edited user is currently a part of the pack
+                    {
+                        if(uneditedUser.Id != user.Id || uneditedUser.DisplayName != user.DisplayName || uneditedUser.IsBanned != user.IsBanned || uneditedUser.ProfilePictureUrl != user.ProfilePictureUrl || uneditedUser.DateCreated != user.DateCreated)
+                        {
+                            //if anything but packId was changed
+                            return BadRequest();
+                        }
+                        else
+                        {
+                            _userRepository.Update(user); //packId needs to be set to null on the front end.
+                            return NoContent();
+                        }
+                    }
+                    return Unauthorized();
+                }
             }
             _userRepository.Update(user);
             return NoContent();

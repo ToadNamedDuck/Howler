@@ -32,7 +32,11 @@ export function getById(id){
                 authorization: `Bearer ${token}`
             }
         })
-    }).then(resp => resp.json());
+    }).then(resp => {
+        if(resp.ok){
+            return resp.json()
+        }
+    });
 
 }
 

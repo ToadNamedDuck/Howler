@@ -4,6 +4,7 @@ import { deleteComment, editComment } from "../../Modules/commentManager";
 import { useEffect, useState } from "react";
 import { BsFillTrashFill } from "react-icons/bs";
 import { BsPencil } from "react-icons/bs"
+import { getById } from "../../Modules/boardManager";
 
 
 export default function Comment({ comment, board, loggedInUser, retrievePost }) {
@@ -13,7 +14,7 @@ export default function Comment({ comment, board, loggedInUser, retrievePost }) 
     const [editText, setEditText] = useState("");
 
     useEffect(() => {
-        setEditText(comment.content)
+        setEditText(comment.content);
     }, [comment])
 
     const editButtonClickHandler = (e) => {
@@ -25,8 +26,7 @@ export default function Comment({ comment, board, loggedInUser, retrievePost }) 
             return;
         }
         try {
-            editComment(comment.id, editedComment);
-            retrievePost();
+            editComment(comment.id, editedComment).then(() => retrievePost());
             setEdit(null);
         }
         catch (ex) {

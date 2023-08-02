@@ -12,7 +12,7 @@ export default function PostDetails({loggedInUser}){
     const {id, postId} = useParams();
     const [post, setPost] = useState(null);
     const [error, setError] = useState(null);
-    const [board, setBoard] = useState({id: id})
+    const [board, setBoard] = useState(null)
 
     const retrievePost = () => {
         GetWithComments(postId).then(resp => {
@@ -28,11 +28,11 @@ export default function PostDetails({loggedInUser}){
         });
     }
 
-    const navigate = useNavigate();
-    
     useEffect(() => {
         getById(id).then(board => setBoard(board))
     },[])
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         retrievePost();
@@ -62,7 +62,7 @@ export default function PostDetails({loggedInUser}){
             e.preventDefault();
             navigate(`/boards/${id}`)
         } }><BsArrowLeft fontSize={"24px"}/>Go Back</Button>
-        <Post post={post} onDetails={true}/>
+        <Post post={post} onDetails={true} board={board} loggedInUser={loggedInUser} retrievePost={retrievePost}/>
         <Card>
             <CardHeader><h2>Comments</h2></CardHeader>
             <CardBody>
