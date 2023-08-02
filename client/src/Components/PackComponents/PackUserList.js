@@ -3,14 +3,14 @@ import { Card, CardBody, CardHeader, Spinner } from "reactstrap";
 import { getPackMembers } from "../../Modules/packManager";
 import UserPartial from "../UserComponents/UserPartial";
 
-export default function PackUserList({packId}){
+export default function PackUserList({pack}){
     const [members, setMembers] = useState(null);
 
     useEffect(() => {
-        getPackMembers(packId).then(members => setMembers(members))
-    },[])
+        getPackMembers(pack.id).then(members => setMembers(members))
+    },[pack])
 
-    if(packId === null || packId === undefined || members === null){
+    if(pack === undefined || members === null){
         return <Spinner className="app-spinner dark"/>;
     }
 
@@ -20,7 +20,7 @@ export default function PackUserList({packId}){
         </CardHeader>
         <CardBody>
             {
-                members.map(member => <UserPartial userInfo={member} key={`pack-${packId}-member-${member.id}`}/>) 
+                members.map(member => <UserPartial userInfo={member} key={`pack-${pack.id}-member-${member.id}`}/>) 
             }
         </CardBody>
     </Card>

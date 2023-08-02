@@ -119,7 +119,8 @@ namespace Howler.Repositories
                 {
                     cmd.CommandText = @"Update [User]
                                         SET DisplayName = @displayName,
-                                        ProfilePictureUrl = @pfp
+                                        ProfilePictureUrl = @pfp,
+                                        PackId = @packId
                                         Where Id = @id";
 
                     cmd.Parameters.AddWithValue("@displayName", user.DisplayName);
@@ -130,6 +131,14 @@ namespace Howler.Repositories
                     else
                     {
                         cmd.Parameters.AddWithValue("@pfp", DBNull.Value);
+                    }
+                    if(user.PackId == null)
+                    {
+                        cmd.Parameters.AddWithValue("@packId", DBNull.Value);
+                    }
+                    else
+                    {
+                        cmd.Parameters.AddWithValue("@packId", user.PackId);
                     }
                     cmd.Parameters.AddWithValue("id", user.Id);
 

@@ -78,3 +78,35 @@ export function getPackMembers(packId){
         })
     })
 }
+
+export function joinPack(loggedInUser, packId){
+    const userToSend = {...loggedInUser}
+    userToSend.packId = packId;
+
+    return getToken().then(token => {
+        return fetch(`/api/Users/Update/${loggedInUser.id}`, {
+            method: "PUT",
+            headers: {
+                authorization: `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(userToSend)
+        })
+    })
+}
+
+export function leavePack(loggedInUser){
+    const userToSend = {...loggedInUser}
+    userToSend.packId = null;
+
+    return getToken().then(token => {
+        return fetch(`/api/Users/Update/${loggedInUser.id}`, {
+            method: "PUT",
+            headers: {
+                authorization: `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(userToSend)
+        })
+    })
+}

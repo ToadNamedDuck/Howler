@@ -3,7 +3,7 @@ import { Card, CardBody, CardHeader, Spinner } from "reactstrap";
 import { getAllPacks } from "../../Modules/packManager";
 import { Pack } from "./Pack";
 
-export default function Packs({loggedInUser}){
+export default function Packs({loggedInUser, userUpdater}){
     const [packs, setPacks] = useState(null)
 
     useEffect(() => {
@@ -20,7 +20,7 @@ export default function Packs({loggedInUser}){
         </CardHeader>
         <CardBody>
             {
-                packs.map(pack => <Pack loggedInUser={loggedInUser} pack={pack} key={`pack-${pack.id}`}/>)
+                packs.map(pack => <Pack userUpdater={userUpdater} loggedInUser={loggedInUser} pack={pack} key={`pack-${pack.id}`}/>)
             }
         </CardBody>
     </Card>

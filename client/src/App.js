@@ -15,8 +15,7 @@ function App() {
     onLoginStatusChange(setIsLoggedIn);
   },[])
 
-  useEffect(() => {
-    if(isLoggedIn){
+  function userUpdater(){
       getUserDetails(firebase.auth().currentUser.uid)
       .then(fullUserObject => {
         const userStripped = {
@@ -28,6 +27,11 @@ function App() {
         };
         setLoggedInUser(userStripped);
       })
+  }
+
+  useEffect(() => {
+    if(isLoggedIn){
+      userUpdater()
     }
     else{
       setLoggedInUser(null);
@@ -42,7 +46,7 @@ function App() {
   return (
   <Router>
       <Header isLoggedIn={isLoggedIn} loggedInUser={loggedInUser}/>
-      <ApplicationViews isLoggedIn={isLoggedIn} loggedInUser={loggedInUser}/>
+      <ApplicationViews isLoggedIn={isLoggedIn} userUpdater={userUpdater} loggedInUser={loggedInUser}/>
   </Router>
   );
 
