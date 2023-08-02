@@ -20,7 +20,11 @@ export function getPackById(id){
             headers: {
                 authorization: `Bearer ${token}`
             }
-        }).then(resp => resp.json())
+        }).then(resp => {
+            if(resp.ok){
+                return resp.json()
+            }
+        })
     })
 }
 
@@ -56,6 +60,21 @@ export function editPack(id, pack){
                 authorization: `Bearer ${token}`
             },
             body: JSON.stringify(pack)
+        })
+    })
+}
+
+export function getPackMembers(packId){
+    return getToken().then(token => {
+        return fetch(`/api/Users/GetByPackId/?packId=${packId}`, {
+            method: "GET",
+            headers: {
+                authorization: `Bearer ${token}`
+            }
+        }).then(resp => {
+            if(resp.ok){
+             return resp.json()
+            }
         })
     })
 }

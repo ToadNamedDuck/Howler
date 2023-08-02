@@ -2,10 +2,11 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import Home from "./Home";
 import Login from "./Login";
 import Register from "./Register";
-import Header from "./Header";
 import Boards from "./BoardComponents/Boards";
 import BoardDetails from "./BoardComponents/BoardDetails";
 import PostDetails from "./PostComponents/PostDetails";
+import Packs from "./PackComponents/Packs";
+import PackDetails from "./PackComponents/PackDetails";
 
 export default function ApplicationViews({isLoggedIn, loggedInUser}){
     return <main style={{marginTop: 175}}>
@@ -16,6 +17,8 @@ export default function ApplicationViews({isLoggedIn, loggedInUser}){
                 <Route path="/boards" element={ isLoggedIn ? <Boards loggedInUser={loggedInUser}/> : <Navigate to="/login"/>}/>
                 <Route path="/boards/:id" element={ isLoggedIn ? <BoardDetails loggedInUser={loggedInUser}/> : <Navigate to="/login"/>}/>
                 <Route path="/boards/:id/posts/:postId" element={ isLoggedIn ? <PostDetails loggedInUser={loggedInUser}/> : <Navigate to="/login"/>}/>
+                <Route path="/packs" element={ isLoggedIn ? <Packs loggedInUser={loggedInUser}/> : <Navigate to="/login"/>}/>
+                <Route path="/packs/:id" element={ isLoggedIn ? <PackDetails loggedInUser={loggedInUser}/> : <Navigate to="/login"/> }/>
                 <Route path="*" element={ isLoggedIn ? <p>Nothing here yet...</p> : <Login/>}/>
             </Routes>
     </main>
