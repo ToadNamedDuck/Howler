@@ -25,7 +25,7 @@ export default function Header({ isLoggedIn, loggedInUser }) {
                         <NavLink tag={RRNavLink} to="/">Home</NavLink>
                         <NavLink tag={RRNavLink} to="/packs">View Packs</NavLink>
                         <NavLink tag={RRNavLink} to="/boards">View Boards</NavLink>
-                        {loggedInUser === null ? "" : <NavLink tag={RRNavLink} to={`/profile/${loggedInUser.id}`}>My Profile</NavLink>}
+                        {loggedInUser === null ? "" : <NavLink tag={RRNavLink} to={`/users/${loggedInUser.id}`}>My Profile</NavLink>}
                     </>
                     }
                     {isLoggedIn &&
