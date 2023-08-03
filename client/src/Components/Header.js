@@ -18,7 +18,6 @@ export default function Header({ isLoggedIn, loggedInUser }) {
     <div className='fixed-top'>
         <Card>
                 <h1 style={{color:"var(--bs-warning)"}} className='text-center'>Howler</h1>
-
             <CardBody>
                 <Nav className="mr-auto justify-content-around" >
                     { /* When isLoggedIn === true, we will render the Home link */}
