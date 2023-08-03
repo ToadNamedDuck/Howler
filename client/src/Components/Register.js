@@ -19,17 +19,19 @@ export default function Register() {
     if(moon === "wrong"){
       alert("You're on a werewolf themed site, don't lie about your favorite moon phase.")
     }
-    if (password && password !== confirmPassword) {
-      alert("Passwords don't match. Do better.");
-    } else {
-      const userProfile = {
-        displayName,
-        profilePictureUrl,
-        email,
-        packId: null,
-        isBanned: false
-      };
-      register(userProfile, password).then(() => navigate("/")).catch(e => alert(e.message));
+    else{
+      if (password && password !== confirmPassword) {
+        alert("Passwords don't match. Do better.");
+      } else {
+        const userProfile = {
+          displayName,
+          profilePictureUrl,
+          email,
+          packId: null,
+          isBanned: false
+        };
+        register(userProfile, password).then(() => navigate("/")).catch(e => alert(e.message));
+      }
     }
   };
 
