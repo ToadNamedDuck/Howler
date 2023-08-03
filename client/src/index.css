@@ -43,7 +43,7 @@ p {
 }
 
 .nav-link, a{
-  color: #d4c81d
+  color: var(--bs-warning)
 }
 a:hover{
   color: #0a58ca
