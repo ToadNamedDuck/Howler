@@ -15,17 +15,23 @@ export default function UserProfile({ loggedInUser, userUpdater }) {
     const [editState, setEditState] = useState(false);
 
     function userRefresher(){
-        getUserWithPosts(id).then(user => setUser(user)).then(() => {
-            if(userWithPosts !== null && userWithPosts.profilePictureUrl === null){
-                userWithPosts.profilePictureUrl = `https://robohash.org/${userWithPosts.userName}?set=set4`
-            }
-        })
+        getUserWithPosts(id).then(user => setUser(user))
     }
 
     useEffect(() => {
+        if((userWithPosts !== null || userWithPosts !== undefined || userWithPosts.id !== id)){
             userRefresher()
+        }
     }, [id])
 
+        if(userWithPosts !== null && userWithPosts !== undefined){
+            if(userWithPosts.profilePictureUrl === null){
+                const userCopy = {...userWithPosts}
+                userCopy.profilePictureUrl = `https://robohash.org/${userWithPosts.userName}?set=set4`
+                setUser(userCopy)
+            }
+        }
+        
     useEffect(() => {
         if(userWithPosts !== null){
             if(userWithPosts.packId !== null){
@@ -41,6 +47,10 @@ export default function UserProfile({ loggedInUser, userUpdater }) {
         return <Spinner className="app-spinner dark"/>;
     }
 
+    if(!(userWithPosts.id)){
+        return <h1>This user doesn't seem to exist. We recommend you browse some boards and find a good post to read.</h1>
+    }
+
     return <Card>
         {
             loggedInUser.id === userWithPosts.id ?
@@ -50,13 +60,13 @@ export default function UserProfile({ loggedInUser, userUpdater }) {
         }
         {
             editState !== false ?
-            <UserEditForm loggedInUser={loggedInUser} userUpdater={userUpdater} editStateUpdater={setEditState} userId={id} userStateChange={userRefresher}/>
+            <UserEditForm userPack={userPack} loggedInUser={loggedInUser} userUpdater={userUpdater} editStateUpdater={setEditState} userId={id} userStateChange={userRefresher}/>
             :
             ""
         }
         <CardHeader className="d-flex flex-row" >
             {
-                userWithPosts.profilePictureUrl !== null && userWithPosts.profilePictureUrl !== undefined && userWithPosts.profilePictureUrl.includes("wikia.nocookie")
+                userWithPosts.profilePictureUrl && userWithPosts.profilePictureUrl !== undefined && userWithPosts.profilePictureUrl.includes("wikia.nocookie")
                     ?
                     <img src={userWithPosts.profilePictureUrl} crossOrigin="anonymous" referrerPolicy="no-referrer" alt={userWithPosts.displayName} height="75px" width="75px" />
                     :
@@ -72,13 +82,13 @@ export default function UserProfile({ loggedInUser, userUpdater }) {
                     <Pack pack={userPack} loggedInUser={loggedInUser} userUpdater={userUpdater} retrievePack={userRefresher}/>
                 </div>
                 :
-                <h4>{userWithPosts.displayName} ia not a member of a pack!</h4>
+                <h4>{userWithPosts.displayName} is not a member of a pack!</h4>
             }
         </CardBody>
         <CardFooter>
             <h3>{userWithPosts.displayName}'s Posts</h3>
             {
-                userWithPosts.posts.length > 0 ?
+                userWithPosts.posts ?
                     userWithPosts.posts.map(post => <ProfilePost post={post} key={`profile-post-${post.id}`}/>)
                     :
                     <h5>User has no posts.</h5>

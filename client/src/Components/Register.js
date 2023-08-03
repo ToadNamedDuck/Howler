@@ -12,9 +12,13 @@ export default function Register() {
   const [profilePictureUrl, setImageLocation] = useState();
   const [password, setPassword] = useState();
   const [confirmPassword, setConfirmPassword] = useState();
+  const [moon, setMoon] = useState("wrong")
 
   const registerClick = (e) => {
     e.preventDefault();
+    if(moon === "wrong"){
+      alert("You're on a werewolf themed site, don't lie about your favorite moon phase.")
+    }
     if (password && password !== confirmPassword) {
       alert("Passwords don't match. Do better.");
     } else {
@@ -55,6 +59,35 @@ export default function Register() {
             type="text"
             onChange={(e) => setImageLocation(e.target.value)}
           />
+        </FormGroup>
+        <FormGroup>
+          <Label for="moonSelect">Select your favorite Moon Phase</Label>
+          <Input type="select" id="moonSelect" onChange={e => {setMoon(e.target.value)} }>
+            <option value="wrong">
+              🌑
+            </option>
+            <option value="wrong">
+              🌒
+            </option>
+            <option value="wrong">
+              🌓
+            </option>
+            <option value="wrong">
+              🌔
+            </option>
+            <option value="right">
+              🌕
+            </option>
+            <option value="wrong">
+              🌖
+            </option>
+            <option value="wrong">
+              🌗
+            </option>
+            <option value="wrong">
+              🌘
+            </option>
+          </Input>
         </FormGroup>
         <FormGroup>
           <Label for="password">Password</Label>
