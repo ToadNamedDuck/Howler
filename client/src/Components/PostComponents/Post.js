@@ -21,7 +21,7 @@ export default function Post({ post, onDetails, board, loggedInUser, retrievePos
         const postCopy = { ...post }
         postCopy.title = editTitle;
         postCopy.content = editContent;
-        if (!postCopy.title.length > 0 || !postCopy.content.length > 0) {
+        if (postCopy.title === "" || postCopy.content === "") {
             alert("Cannot edit a comment and put a blank title or content!")
         }
         else {

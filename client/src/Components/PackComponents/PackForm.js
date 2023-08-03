@@ -22,7 +22,7 @@ export default function PackForm({loggedInUser, getAllPacks, userUpdater, setAll
         const packToSend = {...packState};
         packToSend.name = packName;
         packToSend.description = packDescription;
-        if(!packToSend.name.length > 0 || !packToSend.description > 0){
+        if(packToSend.name === "" || packToSend.description === ""){
             alert("Cannot create a pack with an empty name or description!")
         }
         else{

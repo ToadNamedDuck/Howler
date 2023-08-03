@@ -21,7 +21,7 @@ export default function Comment({ comment, board, loggedInUser, retrievePost }) 
         e.preventDefault();
         const editedComment = { ...comment };
         editedComment.content = editText;
-        if (!editedComment.content.length > 0) {
+        if (editedComment.content === "") {
             alert("Comment's content must not be empty!")
             return;
         }

@@ -51,7 +51,7 @@ export function Pack({pack, loggedInUser, onDetails, retrievePack, userUpdater})
         packToSend.name = editName
         packToSend.description = editDesc
 
-        if(!(packToSend.name.length > 0) || !(packToSend.description.length > 0)){
+        if(packToSend.name === "" || packToSend.description.length === ""){
             alert("You can't edit a pack's name or description to be empty!")
         }
         else{

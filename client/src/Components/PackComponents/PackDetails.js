@@ -1,4 +1,4 @@
-import { Card, CardBody, Spinner } from "reactstrap";
+import { Card, Spinner } from "reactstrap";
 import { Pack } from "./Pack";
 import PackUserList from "./PackUserList";
 import { Link, useParams } from "react-router-dom";
