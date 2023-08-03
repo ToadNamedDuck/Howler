@@ -176,7 +176,7 @@ namespace Howler.Repositories
                                                 from Post po
                                                 join [User] pu on po.UserId = pu.Id
                                                 Left Join Comment co on co.PostId = po.Id
-                                                join [User] cu on co.UserId = cu.Id
+                                                left join [User] cu on co.UserId = cu.Id
                                                 where po.Id = @id";
 
                     cmd.Parameters.AddWithValue("@id", id);
@@ -201,42 +201,44 @@ namespace Howler.Repositories
                                     User = noCommentPost.User
                                 };
                             }
-
-                            Comment comment = new()
+                            if (!reader.IsDBNull(reader.GetOrdinal("commentId")))
                             {
-                                Id = reader.GetInt32(reader.GetOrdinal("commentId")),
-                                Content = reader.GetString(reader.GetOrdinal("commentContent")),
-                                PostId = reader.GetInt32(reader.GetOrdinal("commentPostId")),
-                                UserId = reader.GetInt32(reader.GetOrdinal("commentUserId")),
-                                CreatedOn = reader.GetDateTime(reader.GetOrdinal("commentDate")),
-                                User = new()
+                                Comment comment = new()
                                 {
-                                    Id = reader.GetInt32(reader.GetOrdinal("commentUserId")),
-                                    DisplayName = reader.GetString(reader.GetOrdinal("commentUserDPN")),
-                                    DateCreated = reader.GetDateTime(reader.GetOrdinal("commentUserDate")),
-                                    IsBanned = reader.GetBoolean(reader.GetOrdinal("commentUIB"))
+                                    Id = reader.GetInt32(reader.GetOrdinal("commentId")),
+                                    Content = reader.GetString(reader.GetOrdinal("commentContent")),
+                                    PostId = reader.GetInt32(reader.GetOrdinal("commentPostId")),
+                                    UserId = reader.GetInt32(reader.GetOrdinal("commentUserId")),
+                                    CreatedOn = reader.GetDateTime(reader.GetOrdinal("commentDate")),
+                                    User = new()
+                                    {
+                                        Id = reader.GetInt32(reader.GetOrdinal("commentUserId")),
+                                        DisplayName = reader.GetString(reader.GetOrdinal("commentUserDPN")),
+                                        DateCreated = reader.GetDateTime(reader.GetOrdinal("commentUserDate")),
+                                        IsBanned = reader.GetBoolean(reader.GetOrdinal("commentUIB"))
+                                    }
+                                };
+
+                                if (reader.IsDBNull(reader.GetOrdinal("commentUPFP")))
+                                {
+                                    comment.User.ProfilePictureUrl = null;
                                 }
-                            };
+                                else
+                                {
+                                    comment.User.ProfilePictureUrl = reader.GetString(reader.GetOrdinal("commentUPFP"));
+                                }
 
-                            if (reader.IsDBNull(reader.GetOrdinal("commentUPFP")))
-                            {
-                                comment.User.ProfilePictureUrl = null;
-                            }
-                            else
-                            {
-                                comment.User.ProfilePictureUrl = reader.GetString(reader.GetOrdinal("commentUPFP"));
-                            }
+                                if (reader.IsDBNull(reader.GetOrdinal("commentPackId")))
+                                {
+                                    comment.User.PackId = null;
+                                }
+                                else
+                                {
+                                    comment.User.PackId = reader.GetInt32(reader.GetOrdinal("commentPackId"));
+                                }
 
-                            if (reader.IsDBNull(reader.GetOrdinal("commentPackId")))
-                            {
-                                comment.User.PackId = null;
+                                post.Comments.Add(comment);
                             }
-                            else
-                            {
-                                comment.User.PackId = reader.GetInt32(reader.GetOrdinal("commentPackId"));
-                            }
-
-                            post.Comments.Add(comment);
                         }
                     }
                 }

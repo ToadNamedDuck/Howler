@@ -119,7 +119,8 @@ namespace Howler.Repositories
                 {
                     cmd.CommandText = @"Update [User]
                                         SET DisplayName = @displayName,
-                                        ProfilePictureUrl = @pfp
+                                        ProfilePictureUrl = @pfp,
+                                        PackId = @packId
                                         Where Id = @id";
 
                     cmd.Parameters.AddWithValue("@displayName", user.DisplayName);
@@ -130,6 +131,14 @@ namespace Howler.Repositories
                     else
                     {
                         cmd.Parameters.AddWithValue("@pfp", DBNull.Value);
+                    }
+                    if(user.PackId == null)
+                    {
+                        cmd.Parameters.AddWithValue("@packId", DBNull.Value);
+                    }
+                    else
+                    {
+                        cmd.Parameters.AddWithValue("@packId", user.PackId);
                     }
                     cmd.Parameters.AddWithValue("id", user.Id);
 
@@ -180,8 +189,8 @@ namespace Howler.Repositories
                                         bo.IsPackBoard
                                         from [User] u
                                         left join Post p on p.UserId = u.Id
-                                        join Board bo on p.BoardId = bo.Id
-                                        where u.Id = @userId AND bo.IsPackBoard = 0";
+                                        left join Board bo on p.BoardId = bo.Id
+                                        where u.Id = @userId AND bo.IsPackBoard = 0 OR u.Id = @userId AND bo.IsPackBoard IS NULL";
 
                     cmd.Parameters.AddWithValue("@userId", id);
 
@@ -216,6 +225,8 @@ namespace Howler.Repositories
                                         user.ProfilePictureUrl = null;
                                     }
                                 };
+                            if (!reader.IsDBNull(reader.GetOrdinal("IsPackBoard")))
+                            {
                                 Post post = new()
                                 {
                                     Id = reader.GetInt32(reader.GetOrdinal("PostId")),
@@ -227,6 +238,7 @@ namespace Howler.Repositories
                                 };
                                 user.Posts.Add(post);
                             }
+                        }
                     }
                 }
             }
