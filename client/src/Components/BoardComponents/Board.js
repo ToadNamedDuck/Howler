@@ -24,7 +24,7 @@ export function Board({board, onDetails, loggedInUser, getBoards}){
 
     function editSubmitOnClick(e){
         e.preventDefault();
-        if(!editTitle.length > 0 && !editTopic.length > 0 && !editDesc.length > 0){
+        if(editTitle === "" || editTopic === "" || editDesc === ""){
             alert("All three fields must be populated to edit a board!")
         }
         else{
