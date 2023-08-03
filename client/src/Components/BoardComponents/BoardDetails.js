@@ -61,7 +61,7 @@ export default function BoardDetails({loggedInUser}){
             board.posts.length > 0 ? 
             <>
                 {board.posts.map(post => {
-                    return <Post key={`${post.id}`} post={post} board={board} loggedInUser={loggedInUser} getThisBoard={getThisBoard}/>
+                    return <Post key={`${post.id}`} post={post} board={board} loggedInUser={loggedInUser} retrievePost={getThisBoard}/>
                 })}
             </>
             :
