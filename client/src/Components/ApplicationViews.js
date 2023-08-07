@@ -8,6 +8,7 @@ import PostDetails from "./PostComponents/PostDetails";
 import Packs from "./PackComponents/Packs";
 import PackDetails from "./PackComponents/PackDetails";
 import UserProfile from "./UserComponents/UserProfile";
+import SearchResults from "./SearchResults";
 
 export default function ApplicationViews({isLoggedIn, loggedInUser, userUpdater, searchQuery}){
     return <main style={{marginTop: 175}}>
@@ -20,7 +21,8 @@ export default function ApplicationViews({isLoggedIn, loggedInUser, userUpdater,
                 <Route path="/boards/:id/posts/:postId" element={ isLoggedIn ? <PostDetails loggedInUser={loggedInUser}/> : <Navigate to="/login"/>}/>
                 <Route path="/packs" element={ isLoggedIn ? <Packs loggedInUser={loggedInUser} userUpdater={userUpdater}/> : <Navigate to="/login"/>}/>
                 <Route path="/packs/:id" element={ isLoggedIn ? <PackDetails loggedInUser={loggedInUser} userUpdater={userUpdater}/> : <Navigate to="/login"/> }/>
-                <Route path="/users/:id" element={ isLoggedIn ? <UserProfile loggedInUser={loggedInUser} userUpdater={userUpdater} /> : <Navigate to="/login"/> }/> 
+                <Route path="/users/:id" element={ isLoggedIn ? <UserProfile loggedInUser={loggedInUser} userUpdater={userUpdater} /> : <Navigate to="/login"/> }/>
+                <Route path="/search" element={ isLoggedIn ? <SearchResults loggedInUser={loggedInUser} searchQuery={searchQuery} /> : <Navigate to="/login"/> }/> 
                 <Route path="*" element={ isLoggedIn ? <p>Nothing here yet...</p> : <Login/>}/>
             </Routes>
     </main>

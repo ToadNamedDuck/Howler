@@ -16,6 +16,7 @@ import { logout } from '../Modules/authManager';
 export default function Header({ isLoggedIn, loggedInUser, searchQuery, setQuery }) {
 
     const navigate = useNavigate();
+    const [tempSearchState, setTempSearch] = useState("")
 
     return (
         <div className='fixed-top'>
@@ -32,9 +33,10 @@ export default function Header({ isLoggedIn, loggedInUser, searchQuery, setQuery
                                 {loggedInUser === null ? "" : <NavLink tag={RRNavLink} to={`/users/${loggedInUser.id}`}><h3>My Profile</h3></NavLink>}
                                 {
                                     //Here we want to put our search bar, but the state should go to App.js, so that that state can be passed to the search result page
-                                    <input type="text" style={ {height:"50%"} } placeholder="Search Howler" value={searchQuery} onChange={e => { setQuery(e.target.value) }} onKeyDown={e => {
+                                    <input type="text" style={ {height:"50%"} } placeholder="Search Howler" value={tempSearchState} onChange={e => { setTempSearch(e.target.value) }} onKeyDown={e => {
                                         if (e.key === "Enter" || e.key === 13) {
-                                            if (searchQuery !== "" && searchQuery !== null && searchQuery !== undefined) {
+                                            if (tempSearchState !== "" && tempSearchState !== null && tempSearchState !== undefined) {
+                                                setQuery(tempSearchState)
                                                 navigate("/search");
                                             }
                                         }
