@@ -12,7 +12,7 @@ import {
 } from 'reactstrap';
 import { logout } from '../Modules/authManager';
 
-export default function Header({ isLoggedIn, loggedInUser }) {
+export default function Header({ isLoggedIn, loggedInUser, searchQuery, setQuery }) {
 
   return (
     <div className='fixed-top'>
@@ -27,6 +27,9 @@ export default function Header({ isLoggedIn, loggedInUser }) {
                         <NavLink tag={RRNavLink} to="/packs"><h3>View Packs</h3></NavLink>
                         <NavLink tag={RRNavLink} to="/boards"><h3>View Boards</h3></NavLink>
                         {loggedInUser === null ? "" : <NavLink tag={RRNavLink} to={`/users/${loggedInUser.id}`}><h3>My Profile</h3></NavLink>}
+                        {
+                            //Here we want to put our search bar, but the state should go to App.js, so that that state can be passed to the search result page
+                        }
                     </>
                     }
                     {isLoggedIn &&

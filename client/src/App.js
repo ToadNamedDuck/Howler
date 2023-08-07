@@ -10,6 +10,10 @@ import Header from './Components/Header';
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(null);
   const [loggedInUser, setLoggedInUser] = useState(null);
+  //Search bar state
+  const [searchQuery, setQuery] = useState("");//We want to make sure that if this is "" or null or undefined or whatever we dont send the req.
+  //Both pieces need to go to the header (So the value of the bar can be searchQuery), and so it has the setter
+  //only the searchQuery needs to go to application views. When you hit enter on the search bar, it should pass that state as a prop to results page.
 
   useEffect(() => {
     onLoginStatusChange(setIsLoggedIn);
@@ -45,8 +49,8 @@ function App() {
   
   return (
   <Router>
-      <Header isLoggedIn={isLoggedIn} loggedInUser={loggedInUser}/>
-      <ApplicationViews isLoggedIn={isLoggedIn} userUpdater={userUpdater} loggedInUser={loggedInUser}/>
+      <Header isLoggedIn={isLoggedIn} loggedInUser={loggedInUser} searchQuery={searchQuery} setQuery={setQuery}/>
+      <ApplicationViews isLoggedIn={isLoggedIn} userUpdater={userUpdater} loggedInUser={loggedInUser} searchQuery={searchQuery}/>
   </Router>
   );
 

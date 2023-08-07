@@ -9,7 +9,7 @@ import Packs from "./PackComponents/Packs";
 import PackDetails from "./PackComponents/PackDetails";
 import UserProfile from "./UserComponents/UserProfile";
 
-export default function ApplicationViews({isLoggedIn, loggedInUser, userUpdater}){
+export default function ApplicationViews({isLoggedIn, loggedInUser, userUpdater, searchQuery}){
     return <main style={{marginTop: 175}}>
             <Routes>
                 <Route index path="/" element={ isLoggedIn ? <Home isLoggedIn={isLoggedIn} loggedInUser={loggedInUser}/> : <Navigate to="/login"/>}/>
