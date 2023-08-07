@@ -4,6 +4,7 @@ import { Card, CardBody, CardHeader, Spinner } from "reactstrap";
 import Post from "./PostComponents/Post";
 import { getAllBoards } from "../Modules/boardManager";
 import Comment from "./CommentComponents/Comment";
+import { Board } from "./BoardComponents/Board";
 
 export default function SearchResults({loggedInUser, searchQuery}){
     const [searchResults, setResults] = useState(null);
@@ -68,6 +69,21 @@ export default function SearchResults({loggedInUser, searchQuery}){
                         />)
                 :
                 "There are no public comments that match your search criteria."
+            }
+        </CardBody>
+        <CardHeader>
+            <h2>Boards</h2>
+        </CardHeader>
+        <CardBody>
+            {
+                searchResults.boards.length > 0 ?
+                    searchResults.boards.map(board => <Board loggedInUser={loggedInUser}
+                        board={board}
+                        getBoards={retrieveResults}
+                        key={`search-result-board-${board.id}`}
+                        />)
+                :
+                "There are no public boards that match your search criteria."
             }
         </CardBody>
     </Card>
