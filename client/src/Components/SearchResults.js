@@ -3,11 +3,14 @@ import { Search } from "../Modules/searchManager";
 import { Card, CardBody, CardHeader, Spinner } from "reactstrap";
 import Post from "./PostComponents/Post";
 import { getAllBoards } from "../Modules/boardManager";
+import Comment from "./CommentComponents/Comment";
 
 export default function SearchResults({loggedInUser, searchQuery}){
     const [searchResults, setResults] = useState(null);
     const [boards, setBoards] = useState(null);
     const [errorState, setError] = useState(null);
+    const defaultNoDeleteCommentBoard = {id: -1, boardOwnierId: -1, boardOwner: {id: -1} }
+    //Get board by comment id would be awesome lol
 
     function retrieveResults(){
         setError(null);
@@ -49,6 +52,22 @@ export default function SearchResults({loggedInUser, searchQuery}){
                     key={`search-result-post-${post.id}`}/>)
                 :
                 "There are no public posts that match your search criteria."
+            }
+        </CardBody>
+        <CardHeader>
+            <h2>Comments</h2>
+        </CardHeader>
+        <CardBody>
+            {
+                searchResults.comments.length > 0 ?
+                    searchResults.comments.map(comment => <Comment board={defaultNoDeleteCommentBoard}
+                        comment={comment}
+                        retrievePost={retrieveResults}
+                        loggedInUser={loggedInUser}
+                        key={`search-result-comment-${comment.id}`}
+                        />)
+                :
+                "There are no public comments that match your search criteria."
             }
         </CardBody>
     </Card>
