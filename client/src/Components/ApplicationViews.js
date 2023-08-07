@@ -22,7 +22,7 @@ export default function ApplicationViews({isLoggedIn, loggedInUser, userUpdater,
                 <Route path="/packs" element={ isLoggedIn ? <Packs loggedInUser={loggedInUser} userUpdater={userUpdater}/> : <Navigate to="/login"/>}/>
                 <Route path="/packs/:id" element={ isLoggedIn ? <PackDetails loggedInUser={loggedInUser} userUpdater={userUpdater}/> : <Navigate to="/login"/> }/>
                 <Route path="/users/:id" element={ isLoggedIn ? <UserProfile loggedInUser={loggedInUser} userUpdater={userUpdater} /> : <Navigate to="/login"/> }/>
-                <Route path="/search" element={ isLoggedIn ? <SearchResults loggedInUser={loggedInUser} searchQuery={searchQuery} /> : <Navigate to="/login"/> }/> 
+                <Route path="/search" element={ isLoggedIn ? <SearchResults loggedInUser={loggedInUser} searchQuery={searchQuery} userUpdater={userUpdater}/> : <Navigate to="/login"/> }/> 
                 <Route path="*" element={ isLoggedIn ? <p>Nothing here yet...</p> : <Login/>}/>
             </Routes>
     </main>

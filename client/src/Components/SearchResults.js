@@ -5,8 +5,9 @@ import Post from "./PostComponents/Post";
 import { getAllBoards } from "../Modules/boardManager";
 import Comment from "./CommentComponents/Comment";
 import { Board } from "./BoardComponents/Board";
+import { Pack } from "./PackComponents/Pack";
 
-export default function SearchResults({loggedInUser, searchQuery}){
+export default function SearchResults({loggedInUser, searchQuery, userUpdater}){
     const [searchResults, setResults] = useState(null);
     const [boards, setBoards] = useState(null);
     const [errorState, setError] = useState(null);
@@ -84,6 +85,23 @@ export default function SearchResults({loggedInUser, searchQuery}){
                         />)
                 :
                 "There are no public boards that match your search criteria."
+            }
+        </CardBody>
+        <CardHeader>
+            <h2>Packs</h2>
+        </CardHeader>
+        <CardBody>
+            {
+                searchResults.packs.length > 0 ?
+                    searchResults.packs.map(pack => <Pack
+                        pack={pack}
+                        loggedInUser={loggedInUser}
+                        retrievePack={retrieveResults}
+                        userUpdater={userUpdater}
+                        key={`search-results-pack-${pack.id}`}
+                        />)
+                :
+                ""
             }
         </CardBody>
     </Card>
